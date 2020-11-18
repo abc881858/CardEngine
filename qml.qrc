@@ -1,0 +1,34 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>image/beijing.jpg</file>
+        <file>image/info/null.png</file>
+        <file>image/info/meleecreepbad.png</file>
+        <file>image/info/meleecreepgood.png</file>
+        <file>image/info/rangedcreepbad.png</file>
+        <file>image/info/rangedcreepgood.png</file>
+        <file>image/hand/null.png</file>
+        <file>image/hand/meleecreepbad.png</file>
+        <file>image/hand/meleecreepgood.png</file>
+        <file>image/hand/rangedcreepbad.png</file>
+        <file>image/hand/rangedcreepgood.png</file>
+        <file>image/area/null.png</file>
+        <file>image/area/meleecreepbad.png</file>
+        <file>image/area/meleecreepgood.png</file>
+        <file>image/area/rangedcreepbad.png</file>
+        <file>image/area/rangedcreepgood.png</file>
+        <file>BoardItem.qml</file>
+        <file>DebugItem.qml</file>
+        <file>data.js</file>
+        <file>image/info/zeus.png</file>
+        <file>image/hand/zeus.png</file>
+        <file>image/area/zeus.png</file>
+        <file>image/info/axe.png</file>
+        <file>image/hand/axe.png</file>
+        <file>image/area/axe.png</file>
+        <file>HandImage.qml</file>
+        <file>FrontImage.qml</file>
+        <file>image/sword.png</file>
+        <file>image/sword2.png</file>
+    </qresource>
+</RCC>
