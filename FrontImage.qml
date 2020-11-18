@@ -1,4 +1,5 @@
 import QtQuick 2.0
+import "data.js" as Data
 
 Item {
     property alias source: pic.source;
@@ -21,6 +22,17 @@ Item {
         anchors.top: parent.top
         width:50
         height:72
+
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onEntered: {
+                if(Data.judgeCard() === true)
+                {
+                    cursorShape = Qt.WaitCursor
+                }
+            }
+        }
 
         Image {
             id: sword

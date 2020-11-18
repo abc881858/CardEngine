@@ -102,3 +102,7 @@ function findRedBackIndex() {
     if(redBackCards[4] === undefined) return 4;
     return -1;
 }
+
+function judgeCard() {
+    return true;
+}
