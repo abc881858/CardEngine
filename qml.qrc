@@ -18,7 +18,7 @@
         <file>image/area/rangedcreepbad.png</file>
         <file>image/area/rangedcreepgood.png</file>
         <file>BoardItem.qml</file>
-        <file>DebugItem.qml</file>
+        <file>RemoteItem.qml</file>
         <file>data.js</file>
         <file>image/info/zeus.png</file>
         <file>image/hand/zeus.png</file>
@@ -30,5 +30,13 @@
         <file>FrontImage.qml</file>
         <file>image/sword.png</file>
         <file>image/sword2.png</file>
+        <file>image/cursor/1.png</file>
+        <file>image/cursor/2.png</file>
+        <file>image/cursor/3.png</file>
+        <file>image/cursor/4.png</file>
+        <file>image/cursor/5.png</file>
+        <file>image/cursor/6.png</file>
+        <file>image/cursor/7.png</file>
+        <file>image/cursor/8.png</file>
     </qresource>
 </RCC>

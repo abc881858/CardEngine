@@ -1,5 +1,6 @@
 import QtQuick 2.14
 import QtQuick.Window 2.14
+import "data.js" as Data
 
 Window {
     id: demo
@@ -11,26 +12,31 @@ Window {
     title: qsTr("Demo")
 
     BoardItem {
-        id: dotaBoard
+        id: dotaBoard;
     }
 
-    DebugItem {
-        id: dotaDebug
+    RemoteItem {
+        id: dotaRemote;
     }
 
     Component.onCompleted: {
-        dotaDebug.hand_add.connect(dotaBoard.hand_add)
-        dotaDebug.front_add.connect(dotaBoard.front_add)
-        dotaDebug.back_add.connect(dotaBoard.back_add)
-        dotaDebug.grave_add.connect(dotaBoard.grave_add)
-        dotaDebug.deck_add.connect(dotaBoard.deck_add)
-        dotaDebug.hand_remove.connect(dotaBoard.hand_remove)
-        dotaDebug.front_remove.connect(dotaBoard.front_remove)
-        dotaDebug.back_remove.connect(dotaBoard.back_remove)
-        dotaDebug.grave_remove.connect(dotaBoard.grave_remove)
-        dotaDebug.deck_remove.connect(dotaBoard.deck_remove)
-        dotaDebug.dialog_show.connect(dotaBoard.dialog_show)
-        dotaDebug.start_game.connect(dotaBoard.start_game)
-        dotaDebug.go_battle_phase.connect(dotaBoard.go_battle_phase)
+        dotaRemote.hand_add.connect(Data.hand_add)
+        dotaRemote.front_add.connect(Data.front_add)
+        dotaRemote.back_add.connect(Data.back_add)
+        dotaRemote.grave_add.connect(Data.grave_add)
+        dotaRemote.deck_add.connect(Data.deck_add)
+        dotaRemote.hand_remove.connect(Data.hand_remove)
+        dotaRemote.front_remove.connect(Data.front_remove)
+        dotaRemote.back_remove.connect(Data.back_remove)
+        dotaRemote.grave_remove.connect(Data.grave_remove)
+        dotaRemote.deck_remove.connect(Data.deck_remove)
+        dotaRemote.dialog_show.connect(Data.dialog_show)
+        dotaRemote.start_game.connect(Data.start_game)
+        dotaRemote.go_draw_phase.connect(Data.go_draw_phase)
+        dotaRemote.go_standby_phase.connect(Data.go_standby_phase)
+        dotaRemote.go_main1_phase.connect(Data.go_main1_phase)
+        dotaRemote.go_battle_phase.connect(Data.go_battle_phase)
+        dotaRemote.go_main2_phase.connect(Data.go_main2_phase)
+        dotaRemote.go_end_phase.connect(Data.go_end_phase)
     }
 }
