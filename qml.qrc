@@ -38,5 +38,7 @@
         <file>image/cursor/6.png</file>
         <file>image/cursor/7.png</file>
         <file>image/cursor/8.png</file>
+        <file>DeckImage.qml</file>
+        <file>CardItem.qml</file>
     </qresource>
 </RCC>

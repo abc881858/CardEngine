@@ -10,25 +10,6 @@ Item {
     width: 800
     height: 600
 
-    signal hand_add(string id)
-    signal front_add(string id)
-    signal back_add(string id)
-    signal grave_add(string id)
-    signal deck_add(string id)
-    signal hand_remove(int index)
-    signal front_remove(int index)
-    signal back_remove(int index)
-    signal grave_remove(int index)
-    signal deck_remove(int index)
-    signal dialog_show(string text)
-    signal start_game()
-    signal go_draw_phase()
-    signal go_standby_phase()
-    signal go_main1_phase()
-    signal go_battle_phase()
-    signal go_main2_phase()
-    signal go_end_phase()
-
     Rectangle {
         id: rectangle
         x: 8
@@ -91,7 +72,7 @@ Item {
         text: qsTr("Blue Hand add One Card")
         onClicked: {
             console.log("send hand add");
-            hand_add(card_id.text)
+            Data.hand_add(card_id.text)
         }
     }
 
@@ -103,7 +84,7 @@ Item {
         text: qsTr("Blue Front add One Card")
         onClicked: {
             console.log("send front add");
-            front_add(card_id.text)
+            Data.front_add(card_id.text)
         }
     }
 
@@ -115,7 +96,7 @@ Item {
         text: qsTr("Blue Back add One Card")
         onClicked: {
             console.log("send back add");
-            back_add(card_id.text)
+            Data.back_add(card_id.text)
         }
     }
 
@@ -127,7 +108,7 @@ Item {
         text: qsTr("Blue Grave add One Card")
         onClicked: {
             console.log("send grave add");
-            grave_add(card_id.text)
+            Data.grave_add(card_id.text)
         }
     }
 
@@ -139,7 +120,7 @@ Item {
         text: qsTr("Blue Deck add One Card")
         onClicked: {
             console.log("send deck add");
-            deck_add(card_id.text)
+            Data.deck_add(card_id.text)
         }
     }
 
@@ -151,7 +132,7 @@ Item {
         text: qsTr("Blue Hand remove One Card")
         onClicked: {
             console.log("send hand remove");
-            hand_remove(removeIndex.text)
+            Data.hand_remove(removeIndex.text)
         }
     }
 
@@ -163,7 +144,7 @@ Item {
         text: qsTr("Blue Front remove One Card")
         onClicked: {
             console.log("send front remove");
-            front_remove(removeIndex.text)
+            Data.front_remove(removeIndex.text)
         }
     }
 
@@ -175,7 +156,7 @@ Item {
         text: qsTr("Blue Back remove One Card")
         onClicked: {
             console.log("send back remove");
-            back_remove(removeIndex.text)
+            Data.back_remove(removeIndex.text)
         }
     }
 
@@ -187,7 +168,7 @@ Item {
         text: qsTr("Blue Grave remove One Card")
         onClicked: {
             console.log("send grave remove");
-            grave_remove(removeIndex.text)
+            Data.grave_remove(removeIndex.text)
         }
     }
 
@@ -199,7 +180,7 @@ Item {
         text: qsTr("Blue Deck remove One Card")
         onClicked: {
             console.log("send deck remove");
-            deck_remove(removeIndex.text)
+            Data.deck_remove(removeIndex.text)
         }
     }
 
@@ -263,7 +244,7 @@ Item {
         y: 45
         width: 33
         height: 40
-        text: qsTr("名称")
+        text: qsTr("mingcheng")
         verticalAlignment: Text.AlignVCenter
         horizontalAlignment: Text.AlignHCenter
         font.pixelSize: 12
@@ -289,7 +270,7 @@ Item {
         y: 90
         width: 33
         height: 40
-        text: qsTr("属性")
+        text: qsTr("shuxing")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize:12
         horizontalAlignment: Text.AlignHCenter
@@ -315,7 +296,7 @@ Item {
         y: 135
         width: 33
         height: 40
-        text: qsTr("等级")
+        text: qsTr("dengji")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
         horizontalAlignment: Text.AlignHCenter
@@ -341,7 +322,7 @@ Item {
         y: 180
         width: 33
         height: 40
-        text: qsTr("类型")
+        text: qsTr("leixing")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
         horizontalAlignment: Text.AlignHCenter
@@ -367,7 +348,7 @@ Item {
         y: 226
         width: 33
         height: 40
-        text: qsTr("种族")
+        text: qsTr("zhongzu")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
         horizontalAlignment: Text.AlignHCenter
@@ -393,7 +374,7 @@ Item {
         y: 270
         width: 33
         height: 40
-        text: qsTr("攻击")
+        text: qsTr("gongji")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
         horizontalAlignment: Text.AlignHCenter
@@ -419,7 +400,7 @@ Item {
         y: 315
         width: 33
         height: 40
-        text: qsTr("防御")
+        text: qsTr("fangyu")
         verticalAlignment: Text.AlignVCenter
         font.pixelSize: 12
         horizontalAlignment: Text.AlignHCenter
@@ -446,7 +427,7 @@ Item {
         text: qsTr("Draw Phase")
         onClicked: {
             console.log("draw phase");
-            go_draw_phase();
+            Data.go_draw_phase();
         }
     }
 
@@ -457,7 +438,7 @@ Item {
         text: qsTr("Standby Phase")
         onClicked: {
             console.log("standby phase");
-            go_standby_phase();
+            Data.go_standby_phase();
         }
     }
 
@@ -468,7 +449,7 @@ Item {
         text: qsTr("M1 Phase")
         onClicked: {
             console.log("main1 phase");
-            go_main1_phase();
+            Data.go_main1_phase();
         }
     }
 
@@ -479,7 +460,7 @@ Item {
         text: qsTr("Battle Phase")
         onClicked: {
             console.log("Battle Phase")
-            go_battle_phase();
+            Data.go_battle_phase();
         }
     }
 
@@ -490,7 +471,7 @@ Item {
         text: qsTr("M2 Phase")
         onClicked: {
             console.log("main2 phase");
-            go_main2_phase();
+            Data.go_main2_phase();
         }
     }
 
@@ -501,7 +482,7 @@ Item {
         text: qsTr("End Phase")
         onClicked: {
             console.log("end phase");
-            go_end_phase();
+            Data.go_end_phase();
         }
     }
 
@@ -512,7 +493,7 @@ Item {
         text: qsTr("Dialog")
         onClicked: {
             console.log("dialog show");
-            dialog_show("some text....");
+            Data.dialog_show("some text....");
         }
     }
 
@@ -525,7 +506,7 @@ Item {
         text: qsTr("start game")
         onClicked: {
             console.log("start game");
-            start_game();
+            Data.start_game();
         }
     }
 
@@ -608,6 +589,45 @@ Item {
         width: 172
         text: qsTr("Red Deck remove One Card")
     }
+
+    Button {
+        id: button28
+        x: 667
+        y: 306
+        text: qsTr("Draw")
+        onClicked: {
+            console.log("draw");
+            Data.draw_card();
+        }
+    }
+
+//    Button {
+//        id: button29
+//        x: 667
+//        y: 361
+//        text: qsTr("Summon")
+//    }
+
+//    Button {
+//        id: button30
+//        x: 667
+//        y: 416
+//        text: qsTr("SetFront")
+//    }
+
+//    Button {
+//        id: button31
+//        x: 667
+//        y: 480
+//        text: qsTr("Active")
+//    }
+
+//    Button {
+//        id: button32
+//        x: 667
+//        y: 537
+//        text: qsTr("SetBack")
+//    }
 
     Component.onCompleted: {
         card_id.text = "1"

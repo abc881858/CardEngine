@@ -66,12 +66,16 @@ function startGame() {
     boardCards = JSON.parse(array);
     for(let index in blueDeck)
     {
-        var deckImage = Qt.createQmlObject('import QtQuick 2.0;Image{width:50;height:72;}', boardObject);
-        deckImage.source = "qrc:/image/area/" + boardCards[blueDeck[index]]["name"] +".png";
-        deckImage.x = 732+0.1*index;
-        deckImage.y = 441-0.1*index;
-        deckImage.z = 2;
-        blueDeckCards.push(deckImage);
+        var component = Qt.createComponent("CardItem.qml");
+        if (component.status === componentObject.Ready) {
+            var deckImage = component.createObject(boardObject);
+            deckImage.index = blueDeckCards.length;
+            deckImage.isdn = Number(blueDeck[index]);
+            deckImage.x = 732+1*index;
+            deckImage.y = 441-1*index;
+            deckImage.z = 2;
+            blueDeckCards.push(deckImage);
+        }
     }
 }
 
@@ -82,6 +86,7 @@ function adjustHand() {
         blueHandCards[index].x = 275 + card_skip * index;
         blueHandCards[index].y = 529;
         blueHandCards[index].z = 100 + 0.1 * index;
+        blueHandCards[index].index = index;
     }
 }
 
@@ -201,7 +206,7 @@ function canAttack(obj) {
 
 function hand_add(id) {
     console.log("receive hand add " + id);
-    var component = Qt.createComponent("HandImage.qml");
+    var component = Qt.createComponent("CardItem.qml");
     if (component.status === componentObject.Ready) {
         var handImage = component.createObject(boardObject);
         handImage.source = "qrc:/image/hand/" + boardCards[id]["name"] +".png";
@@ -209,6 +214,18 @@ function hand_add(id) {
         handImage.isdn = Number(id);
         blueHandCards.push(handImage);
         adjustHand();
+    }
+}
+
+function draw_card() {
+    console.log("receive draw card");
+    if(blueDeckCards.length === 0) {
+        console.log("you lose");
+    } else {
+        var handImage = blueDeckCards.pop();
+        blueHandCards.push(handImage);
+        adjustHand();
+        handImage.state = "handArea";
     }
 }
 
@@ -259,8 +276,8 @@ function deck_add(id) {
 function hand_remove(index) {
     console.log("receive hand remove " + index);
     var handImage = blueHandCards[index];
-    handImage.destroy();
     blueHandCards.splice(index, 1);
+    handImage.destroy();
     adjustHand();
 }
 
