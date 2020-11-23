@@ -2,6 +2,7 @@ import QtQuick 2.3
 import "data.js" as Data
 import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
+import QtWebSockets 1.0
 
 Image {
     id: board
@@ -14,11 +15,22 @@ Image {
     Component.onCompleted: {
         Data.componentObject = Component;
         Data.boardObject = board;
+        Data.boardSocket = socket;
         Data.infoImageObject = infoImage;
         Data.infoTextObject = infoText;
         Data.dialogText = textDialog;
         Data.dialogObject = dialog;
         Data.startGame();
+    }
+
+    WebSocket {
+        id: socket
+        url: "ws://127.0.0.1:7720"
+        active: true
+        onTextMessageReceived: {
+            console.log(message)
+            Data.handleMessage(message.split("#")[0], message.split("#")[1]);
+        }
     }
 
     Dialog {
@@ -93,31 +105,4 @@ Image {
         font.pointSize: 10
         wrapMode: TextEdit.Wrap
     }
-
-//    Image {
-//        id: cursor
-//        x: -100
-//        y: -100
-//        z: 999
-//        width: 72
-//        height: 72
-//        source: "qrc:/image/cursor/3.png"
-//    }
-
-//    MouseArea {
-//        id: mouseArea
-//        anchors.fill: parent
-//        cursorShape: Qt.BlankCursor
-//        hoverEnabled: true
-//        onPositionChanged: {
-//            cursor.x = mouseX-31
-//            cursor.y = mouseY-15
-//        }
-//    }
 }
-
-/*##^##
-Designer {
-    D{i:0;formeditorZoom:1}
-}
-##^##*/

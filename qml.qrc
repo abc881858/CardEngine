@@ -26,8 +26,6 @@
         <file>image/info/axe.png</file>
         <file>image/hand/axe.png</file>
         <file>image/area/axe.png</file>
-        <file>HandImage.qml</file>
-        <file>FrontImage.qml</file>
         <file>image/sword.png</file>
         <file>image/sword2.png</file>
         <file>image/cursor/1.png</file>
@@ -38,7 +36,8 @@
         <file>image/cursor/6.png</file>
         <file>image/cursor/7.png</file>
         <file>image/cursor/8.png</file>
-        <file>DeckImage.qml</file>
         <file>CardItem.qml</file>
+        <file>image/area/null2.png</file>
+        <file>image/hand/null2.png</file>
     </qresource>
 </RCC>

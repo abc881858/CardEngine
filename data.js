@@ -1,7 +1,7 @@
 .pragma library
 
 var array = '{\
-"0":{"name":"null","description":"No_Description","attribute":"No_Attribute","level":"0","kind":"No_Kind","type":"No_Type","atk":"-1","def":"-1"},\
+"0":{"name":"null","description":"","attribute":"No_Attribute","level":"0","kind":"No_Kind","type":"No_Type","atk":"-1","def":"-1"},\
 "1":{"name":"meleecreepgood","description":"meleecreepgood","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
 "2":{"name":"meleecreepbad","description":"meleecreepbad","attribute":"Dark_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
 "3":{"name":"rangedcreepgood","description":"rangedcreepgood","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1200","def":"1300"},\
@@ -10,6 +10,7 @@ var array = '{\
 "6":{"name":"axe","description":"axe","attribute":"Earth_Attribute","level":"7","kind":"EffectMonster_Kind","type":"BeastWarrior_Type","atk":"1900","def":"1400"}\
 }'
 var boardCards;
+var boardSocket;
 
 var turnNumber = 0
 var blueLP = 8000
@@ -37,6 +38,9 @@ var redBackCards = new Array(5)
 var redGraveCards = []
 var redDeckCards = []
 
+var battleFromIndex;
+var battleToIndex;
+
 //blue DP 1
 //blue SP 2
 //blue M1 3
@@ -60,26 +64,38 @@ function sendInfoImage(isdn) {
 }
 
 function startGame() {
-    //set up blue deck
-    console.log("deck add...");
-
     boardCards = JSON.parse(array);
-    for(let index in blueDeck)
-    {
-        var component = Qt.createComponent("CardItem.qml");
-        if (component.status === componentObject.Ready) {
-            var deckImage = component.createObject(boardObject);
-            deckImage.index = blueDeckCards.length;
-            deckImage.isdn = Number(blueDeck[index]);
-            deckImage.x = 732+1*index;
-            deckImage.y = 441-1*index;
-            deckImage.z = 2;
-            blueDeckCards.push(deckImage);
+    console.log("set up blue deck...");
+    for(let blueIndex in blueDeck) {
+        var blueComponent = Qt.createComponent("CardItem.qml");
+        if (blueComponent.status === componentObject.Ready) {
+            var blueDeckImage = blueComponent.createObject(boardObject);
+            blueDeckImage.state = "blueDeckArea";
+            blueDeckImage.index = blueDeckCards.length;
+            blueDeckImage.isdn = Number(blueDeck[blueIndex]);
+            blueDeckImage.x = 732+1*blueIndex;
+            blueDeckImage.y = 441-1*blueIndex;
+            blueDeckImage.z = 2;
+            blueDeckCards.push(blueDeckImage);
+        }
+    }
+    console.log("set up red deck...");
+    for(let redIndex in redDeck) {
+        var redComponent = Qt.createComponent("CardItem.qml");
+        if (redComponent.status === componentObject.Ready) {
+            var redDeckImage = redComponent.createObject(boardObject);
+            redDeckImage.state = "redDeckArea";
+            redDeckImage.index = redDeckCards.length;
+            redDeckImage.isdn = Number(redDeck[redIndex]);
+            redDeckImage.x = 270-1*redIndex;
+            redDeckImage.y = 105-1*redIndex;
+            redDeckImage.z = 2;
+            redDeckCards.push(redDeckImage);
         }
     }
 }
 
-function adjustHand() {
+function adjustBlueHand() {
     var n = blueHandCards.length;
     var card_skip = (n > 5) ? (412 / (n - 1)) : 102;
     for(let index in blueHandCards) {
@@ -87,6 +103,17 @@ function adjustHand() {
         blueHandCards[index].y = 529;
         blueHandCards[index].z = 100 + 0.1 * index;
         blueHandCards[index].index = index;
+    }
+}
+
+function adjustRedHand() {
+    var n = redHandCards.length;
+    var card_skip = (n > 5) ? (412 / (n - 1)) : 102;
+    for(let index in redHandCards) {
+        redHandCards[index].x = 275 + 408 - card_skip * index;
+        redHandCards[index].y = -71;
+        redHandCards[index].z = 100 + 0.1 * index;
+        redHandCards[index].index = index;
     }
 }
 
@@ -133,21 +160,16 @@ function findRedBackIndex() {
 function judgeHandCard(index) {
     var result = [];
     console.log("judgeHandCard index: " + index);
-    if(phase === 3 || phase === 5)
-    {
-        if(blueHandCards[index].isdn === 5)
-        {
+    if(phase === 3 || phase === 5) {
+        if(blueHandCards[index].isdn === 5) {
             if(blueFrontCards[0] !== undefined ||
-               blueFrontCards[1] !== undefined ||
-               blueFrontCards[2] !== undefined ||
-               blueFrontCards[3] !== undefined ||
-               blueFrontCards[4] !== undefined)
-            {
+                    blueFrontCards[1] !== undefined ||
+                    blueFrontCards[2] !== undefined ||
+                    blueFrontCards[3] !== undefined ||
+                    blueFrontCards[4] !== undefined) {
                 result.push(2);
             }
-        }
-        if(blueSummonEnable === true)
-        {
+        } if(blueSummonEnable === true) {
             result.push(3);
             result.push(4);
         }
@@ -161,31 +183,24 @@ function judgeHandCard(index) {
 //防御表示 6
 //攻击 7
 function judgeFrontCard(index) {
+    var result = [];
     console.log("judgeFrontCard index: " + index);
-    if(phase===3 || phase===5)
-    {
-        if(canEffect(blueFrontCards[index]))
-        {
-            return 1;
-        }
-        else if(canTurnAtk(blueFrontCards[index]))
-        {
-            return 5;
-        }
-        else if(canTurnDef(blueFrontCards[index]))
-        {
-            return 6;
+    if(phase===3 || phase===5) {
+        if(canEffect(blueFrontCards[index])) {
+            result.push(1);
+        } else if(canTurnAtk(blueFrontCards[index])) {
+            result.push(5);
+        } else if(canTurnDef(blueFrontCards[index])) {
+            result.push(6);
         }
     }
-    else if(phase===4)
-    {
-        if(canAttack(blueFrontCards[index]))
-        {
-            return 7;
+    else if(phase===4) {
+        if(canAttack(blueFrontCards[index])) {
+            result.push(7);
         }
     }
 
-    return 0;
+    return result;
 }
 
 function canEffect(obj) {
@@ -204,103 +219,55 @@ function canAttack(obj) {
     return true;
 }
 
-function hand_add(id) {
-    console.log("receive hand add " + id);
-    var component = Qt.createComponent("CardItem.qml");
-    if (component.status === componentObject.Ready) {
-        var handImage = component.createObject(boardObject);
-        handImage.source = "qrc:/image/hand/" + boardCards[id]["name"] +".png";
-        handImage.index = blueHandCards.length;
-        handImage.isdn = Number(id);
-        blueHandCards.push(handImage);
-        adjustHand();
-    }
-}
-
-function draw_card() {
-    console.log("receive draw card");
+function blue_draw_card() {
+    console.log("receive blue draw card");
     if(blueDeckCards.length === 0) {
         console.log("you lose");
     } else {
         var handImage = blueDeckCards.pop();
         blueHandCards.push(handImage);
-        adjustHand();
-        handImage.state = "handArea";
+        adjustBlueHand();
+        handImage.state = "blueHandArea";
+        boardSocket.sendTextMessage("draw#"+handImage.isdn);
     }
 }
 
-function front_add(id) {
-    var index = findBlueFrontIndex();
-    if(index !== -1) {
-        console.log("receive front add " + id);
-        var component = Qt.createComponent("FrontImage.qml");
-        if (component.status === componentObject.Ready) {
-            var frontImage = component.createObject(boardObject);
-            frontImage.source = "qrc:/image/hand/" + boardCards[id]["name"] +".png";
-            frontImage.text = boardCards[id]["atk"] + "/" + boardCards[id]["def"];
-            frontImage.x = 350+78*index;
-            frontImage.y = 317;
-            frontImage.z = 2;
-            frontImage.index = index;
-            frontImage.isdn = Number(id);
-            blueFrontCards[index] = frontImage;
-        }
+function red_draw_card() {
+    console.log("receive red draw card");
+    if(redDeckCards.length === 0) {
+        console.log("you win");
     } else {
-        console.log("can not find empty front area");
+        var handImage = redDeckCards.pop();
+        redHandCards.push(handImage);
+        adjustRedHand();
+        handImage.state = "redHandArea";
     }
 }
 
-function back_add(id) {
-    var index = findBlueBackIndex();
-    if(index !== -1) {
-        console.log("receive back add " + id);
-        var backImage = Qt.createQmlObject('import QtQuick 2.0;Image{width:50;height:72;}', boardObject);
-        backImage.source = "qrc:/image/area/" + boardCards[id]["name"] +".png";
-        backImage.x = 350+78*index;
-        backImage.y = 424;
-        backImage.z = 2;
-        blueBackCards[index] = backImage;
-    } else {
-        console.log("can not find empty back area");
+function handleMessage(command, parameter) {
+    if(command === "draw") {
+        red_draw_card();
     }
 }
 
-function grave_add(id) {
-    console.log("receive grave add " + boardCards[id]["name"]);
+function redVerticalFaceupFront(index) {
+    console.log("receive red vertical faceup front " + index);
+    var place = findRedFrontIndex();
+    var frontImage = redHandCards.splice(index, 1)[0];
+    redFrontCards[place] = frontImage;
+    frontImage.index = place;
+    frontImage.z = 2;
+    frontImage.state = "redVerticalFaceupFront";
 }
 
-function deck_add(id) {
-    console.log("receive deck add " + boardCards[id]["name"]);
-}
-
-function hand_remove(index) {
-    console.log("receive hand remove " + index);
-    var handImage = blueHandCards[index];
-    blueHandCards.splice(index, 1);
-    handImage.destroy();
-    adjustHand();
-}
-
-function front_remove(index) {
-    console.log("receive front remove " + index);
-    var frontImage = blueFrontCards[index];
-    frontImage.destroy();
-    delete blueFrontCards[index];
-}
-
-function back_remove(index) {
-    console.log("receive back remove " + index);
-    var backImage = blueBackCards[index];
-    backImage.destroy();
-    delete blueBackCards[index];
-}
-
-function grave_remove(index) {
-    console.log("receive grave remove " + index);
-}
-
-function deck_remove(index) {
-    console.log("receive deck remove " + index);
+function redHorizontalFacedownFront(index) {
+    console.log("red horizontal facedown front " + index);
+    var place = findRedFrontIndex();
+    var frontImage = redHandCards.splice(index, 1)[0];
+    redFrontCards[place] = frontImage;
+    frontImage.index = place;
+    frontImage.z = 2;
+    frontImage.state = "redHorizontalFacedownFront";
 }
 
 function dialog_show(text) {
@@ -308,6 +275,7 @@ function dialog_show(text) {
     dialogText.text = text
     dialogObject.visible = true
 }
+
 function start_game() {
     console.log("receive start game");
     startGame();
@@ -327,11 +295,15 @@ function go_main1_phase() {
 
 function go_battle_phase() {
     phase = 4;
-    if(blueFrontCards[0] !== undefined) blueFrontCards[0].swordVisiable = true;
-    if(blueFrontCards[1] !== undefined) blueFrontCards[1].swordVisiable = true;
-    if(blueFrontCards[2] !== undefined) blueFrontCards[2].swordVisiable = true;
-    if(blueFrontCards[3] !== undefined) blueFrontCards[3].swordVisiable = true;
-    if(blueFrontCards[4] !== undefined) blueFrontCards[4].swordVisiable = true;
+    for(var index = 0; index<5; index++) {
+        if(blueFrontCards[index] !== undefined) blueFrontCards[index].state = "blueBattle"
+    }
+
+//    if(blueFrontCards[0] !== undefined) blueFrontCards[0].stateswordVisiable = true;
+//    if(blueFrontCards[1] !== undefined) blueFrontCards[1].swordVisiable = true;
+//    if(blueFrontCards[2] !== undefined) blueFrontCards[2].swordVisiable = true;
+//    if(blueFrontCards[3] !== undefined) blueFrontCards[3].swordVisiable = true;
+//    if(blueFrontCards[4] !== undefined) blueFrontCards[4].swordVisiable = true;
 }
 
 function go_main2_phase() {

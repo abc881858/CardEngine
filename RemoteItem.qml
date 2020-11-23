@@ -10,180 +10,6 @@ Item {
     width: 800
     height: 600
 
-    Rectangle {
-        id: rectangle
-        x: 8
-        y: 0
-        width: 340
-        height: 40
-        color: "#ffffff"
-        border.color: "#00aaff"
-
-        Text {
-            id: element1
-            x: 0
-            y: 0
-            width: 90
-            height: 40
-            text: qsTr("Add Index:")
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        TextInput {
-            id: addIndex
-            x: 90
-            y: 0
-            width: 80
-            height: 40
-            text: "0"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        Text {
-            id: element2
-            x: 170
-            y: 0
-            width: 90
-            height: 40
-            text: qsTr("Remove Index:")
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-
-        TextInput {
-            id: removeIndex
-            x: 260
-            y: 0
-            width: 80
-            height: 40
-            text: "0"
-            verticalAlignment: Text.AlignVCenter
-            horizontalAlignment: Text.AlignHCenter
-        }
-    }
-
-    Button {
-        id: button1
-        x: 8
-        y: 46
-        width: 154
-        text: qsTr("Blue Hand add One Card")
-        onClicked: {
-            console.log("send hand add");
-            Data.hand_add(card_id.text)
-        }
-    }
-
-    Button {
-        id: button2
-        x: 8
-        y: 91
-        width: 154
-        text: qsTr("Blue Front add One Card")
-        onClicked: {
-            console.log("send front add");
-            Data.front_add(card_id.text)
-        }
-    }
-
-    Button {
-        id: button3
-        x: 8
-        y: 136
-        width: 154
-        text: qsTr("Blue Back add One Card")
-        onClicked: {
-            console.log("send back add");
-            Data.back_add(card_id.text)
-        }
-    }
-
-    Button {
-        id: button4
-        x: 8
-        y: 181
-        width: 154
-        text: qsTr("Blue Grave add One Card")
-        onClicked: {
-            console.log("send grave add");
-            Data.grave_add(card_id.text)
-        }
-    }
-
-    Button {
-        id: button5
-        x: 8
-        y: 226
-        width: 154
-        text: qsTr("Blue Deck add One Card")
-        onClicked: {
-            console.log("send deck add");
-            Data.deck_add(card_id.text)
-        }
-    }
-
-    Button {
-        id: button6
-        x: 175
-        y: 45
-        width: 172
-        text: qsTr("Blue Hand remove One Card")
-        onClicked: {
-            console.log("send hand remove");
-            Data.hand_remove(removeIndex.text)
-        }
-    }
-
-    Button {
-        id: button7
-        x: 175
-        y: 90
-        width: 172
-        text: qsTr("Blue Front remove One Card")
-        onClicked: {
-            console.log("send front remove");
-            Data.front_remove(removeIndex.text)
-        }
-    }
-
-    Button {
-        id: button8
-        x: 175
-        y: 135
-        width: 172
-        text: qsTr("Blue Back remove One Card")
-        onClicked: {
-            console.log("send back remove");
-            Data.back_remove(removeIndex.text)
-        }
-    }
-
-    Button {
-        id: button9
-        x: 175
-        y: 180
-        width: 172
-        text: qsTr("Blue Grave remove One Card")
-        onClicked: {
-            console.log("send grave remove");
-            Data.grave_remove(removeIndex.text)
-        }
-    }
-
-    Button {
-        id: button10
-        x: 175
-        y: 225
-        width: 172
-        text: qsTr("Blue Deck remove One Card")
-        onClicked: {
-            console.log("send deck remove");
-            Data.deck_remove(removeIndex.text)
-        }
-    }
-
     Image {
         id: image
         x: 600
@@ -422,8 +248,10 @@ Item {
 
     Button {
         id: button13
-        x: 363
-        y: 420
+        x: 8
+        y: 39
+        width: 79
+        height: 22
         text: qsTr("Draw Phase")
         onClicked: {
             console.log("draw phase");
@@ -433,8 +261,10 @@ Item {
 
     Button {
         id: button14
-        x: 363
-        y: 480
+        x: 8
+        y: 67
+        width: 100
+        height: 24
         text: qsTr("Standby Phase")
         onClicked: {
             console.log("standby phase");
@@ -444,8 +274,10 @@ Item {
 
     Button {
         id: button15
-        x: 363
-        y: 537
+        x: 8
+        y: 97
+        width: 68
+        height: 23
         text: qsTr("M1 Phase")
         onClicked: {
             console.log("main1 phase");
@@ -455,8 +287,10 @@ Item {
 
     Button {
         id: button
-        x: 517
-        y: 420
+        x: 102
+        y: 39
+        width: 93
+        height: 22
         text: qsTr("Battle Phase")
         onClicked: {
             console.log("Battle Phase")
@@ -466,8 +300,10 @@ Item {
 
     Button {
         id: button11
-        x: 517
-        y: 480
+        x: 114
+        y: 67
+        width: 66
+        height: 18
         text: qsTr("M2 Phase")
         onClicked: {
             console.log("main2 phase");
@@ -477,8 +313,10 @@ Item {
 
     Button {
         id: button12
-        x: 517
-        y: 537
+        x: 102
+        y: 97
+        width: 78
+        height: 23
         text: qsTr("End Phase")
         onClicked: {
             console.log("end phase");
@@ -488,8 +326,10 @@ Item {
 
     Button {
         id: button16
-        x: 517
-        y: 361
+        x: 102
+        y: 8
+        width: 70
+        height: 25
         text: qsTr("Dialog")
         onClicked: {
             console.log("dialog show");
@@ -499,10 +339,10 @@ Item {
 
     Button {
         id: button17
-        x: 363
-        y: 361
-        width: 100
-        height: 40
+        x: 8
+        y: 8
+        width: 79
+        height: 25
         text: qsTr("start game")
         onClicked: {
             console.log("start game");
@@ -511,123 +351,66 @@ Item {
     }
 
     Button {
-        id: button18
-        x: 8
-        y: 281
-        width: 154
-        text: qsTr("Red Hand add One Card")
-    }
-
-    Button {
-        id: button19
-        x: 8
-        y: 326
-        width: 154
-        text: qsTr("Red Front add One Card")
-    }
-
-    Button {
-        id: button20
-        x: 8
-        y: 371
-        width: 154
-        text: qsTr("Red Back add One Card")
-    }
-
-    Button {
-        id: button21
-        x: 8
-        y: 416
-        width: 154
-        text: qsTr("Red Grave add One Card")
-    }
-
-    Button {
-        id: button22
-        x: 8
-        y: 461
-        width: 154
-        text: qsTr("Red Deck add One Card")
-    }
-
-    Button {
-        id: button23
-        x: 175
-        y: 280
-        width: 172
-        text: qsTr("Red Hand remove One Card")
-    }
-
-    Button {
-        id: button24
-        x: 175
-        y: 325
-        width: 172
-        text: qsTr("Red Front remove One Card")
-    }
-
-    Button {
-        id: button25
-        x: 175
-        y: 370
-        width: 172
-        text: qsTr("Red Back remove One Card")
-    }
-
-    Button {
-        id: button26
-        x: 175
-        y: 415
-        width: 172
-        text: qsTr("Red Grave remove One Card")
-    }
-
-    Button {
-        id: button27
-        x: 175
-        y: 460
-        width: 172
-        text: qsTr("Red Deck remove One Card")
-    }
-
-    Button {
         id: button28
-        x: 667
-        y: 306
-        text: qsTr("Draw")
+        x: 8
+        y: 242
+        text: qsTr("Blue Draw")
         onClicked: {
-            console.log("draw");
-            Data.draw_card();
+            console.log("blue draw");
+            Data.blue_draw_card();
         }
     }
 
-//    Button {
-//        id: button29
-//        x: 667
-//        y: 361
-//        text: qsTr("Summon")
-//    }
+    Button {
+        id: button29
+        x: 162
+        y: 242
+        text: qsTr("Red Draw")
+        onClicked: {
+            console.log("red draw");
+            Data.red_draw_card();
+        }
+    }
 
-//    Button {
-//        id: button30
-//        x: 667
-//        y: 416
-//        text: qsTr("SetFront")
-//    }
+    Button {
+        id: button30
+        x: 8
+        y: 299
+        text: qsTr("redVerticalFaceupFront")
+        onClicked: {
+            Data.redVerticalFaceupFront(Number(indexOfHand.text));
+        }
+    }
 
-//    Button {
-//        id: button31
-//        x: 667
-//        y: 480
-//        text: qsTr("Active")
-//    }
+    Button {
+        id: button32
+        x: 8
+        y: 345
+        text: qsTr("redHorizontalFacedownFront")
+        onClicked: {
+            Data.redHorizontalFacedownFront(Number(indexOfHand.text));
+        }
+    }
 
-//    Button {
-//        id: button32
-//        x: 667
-//        y: 537
-//        text: qsTr("SetBack")
-//    }
+    Text {
+        id: element
+        x: 172
+        y: 346
+        text: qsTr("Index of Hand")
+        font.pixelSize: 12
+    }
+
+    TextInput {
+        id: indexOfHand
+        x: 172
+        y: 365
+        width: 80
+        height: 15
+        text: qsTr("0")
+        font.pixelSize: 12
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+    }
 
     Component.onCompleted: {
         card_id.text = "1"
