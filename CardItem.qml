@@ -79,6 +79,12 @@ Item {
             name: "blueVerticalFaceupFront"
         },
         State {
+            name: "blueVerticalFacedownFront"
+        },
+        State {
+            name: "blueHorizontalFaceupFront"
+        },
+        State {
             name: "blueHorizontalFacedownFront"
         },
         State {
@@ -86,6 +92,9 @@ Item {
         },
         State {
             name: "blueSetBack"
+        },
+        State {
+            name: "blueGrave"
         },
         State {
             name: "redDeckArea"
@@ -97,6 +106,12 @@ Item {
             name: "redVerticalFaceupFront"
         },
         State {
+            name: "redVerticalFacedownFront"
+        },
+        State {
+            name: "redHorizontalFaceupFront"
+        },
+        State {
             name: "redHorizontalFacedownFront"
         },
         State {
@@ -104,6 +119,9 @@ Item {
         },
         State {
             name: "redSetBack"
+        },
+        State {
+            name: "redGrave"
         }
     ]
 
@@ -400,7 +418,11 @@ Item {
             } else if(card_item.state === "redVerticalFaceupFront" ||
                       card_item.state === "redHorizontalFaceupFront" ||
                       card_item.state === "blueVerticalFaceupFront" ||
-                      card_item.state === "blueHorizontalFacedownFront") {
+                      card_item.state === "blueVerticalFacedownFront" ||
+                      card_item.state === "blueHorizontalFaceupFront" ||
+                      card_item.state === "blueHorizontalFacedownFront" ||
+                      card_item.state === "blueGrave" ||
+                      card_item.state === "redGrave") {
                 Data.sendInfoImage(isdn)
             } else if(card_item.state === "redHorizontalFacedownFront") {
                 Data.sendInfoImage(0)

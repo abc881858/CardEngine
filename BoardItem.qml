@@ -1,8 +1,8 @@
 import QtQuick 2.3
 import "data.js" as Data
-import QtQuick.Controls 1.2
 import QtQuick.Dialogs 1.2
 import QtWebSockets 1.0
+import QtQuick.Controls 2.14
 
 Image {
     id: board
@@ -43,7 +43,6 @@ Image {
         visible: false
         width: 400
         height: 100
-        modality: Qt.NonModal
         contentItem: Rectangle {
             color: "lightskyblue"
             Text {
@@ -100,15 +99,19 @@ Image {
         fillMode: Image.PreserveAspectFit
     }
 
-    TextEdit {
-        id: infoText
+    ScrollView {
+        id: infoScroll
         x: 8
         y: 371
-        width: 176
+        width: 190
         height: 147
-        font.family: "Helvetica"
-        font.pointSize: 10
-        wrapMode: TextEdit.Wrap
+        TextArea {
+            id: infoText
+            readOnly: true
+            font.family: "Helvetica"
+            font.pointSize: 10
+            wrapMode: TextEdit.Wrap
+        }
     }
 
     Image {
@@ -149,14 +152,20 @@ Image {
                 blueSword0.y = 317;
                 blueSword0.rotation = 0;
                 blueSword0.source = "qrc:/image/sword.png"
-
+            }
+        }
+        PauseAnimation {
+            duration: 1000
+        }
+        ScriptAction {
+            script: {
                 if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFacedownFront") {
                     Data.redFrontCards[Data.battleToIndex].state = "redHorizontalFaceupFront";
                 }
             }
         }
         PauseAnimation {
-            duration: 2000
+            duration: 1000
         }
         ScriptAction {
             script: {
@@ -177,14 +186,12 @@ Image {
                         Data.blueLP -= Data.boardCards[isdnTo]["atk"] - Data.boardCards[isdnFrom]["atk"];
                         console.log("Data.blueLP: " + Data.blueLP);
                     }
-                }
-                if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFaceupFront") {
+                } else if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFaceupFront") {
                     if(Number(Data.boardCards[isdnFrom]["atk"]) > Number(Data.boardCards[isdnTo]["def"])) {
                         Data.redFrontCards[Data.battleToIndex].state = "redGrave";
                         Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
                         delete Data.redFrontCards[Data.battleToIndex];
-                    }
-                    if(Number(Data.boardCards[isdnTo]["def"]) > Number(Data.boardCards[isdnFrom]["atk"])) {
+                    } else if(Number(Data.boardCards[isdnTo]["def"]) > Number(Data.boardCards[isdnFrom]["atk"])) {
                         Data.blueLP -= Data.boardCards[isdnTo]["def"] - Data.boardCards[isdnFrom]["atk"];
                         console.log("Data.blueLP: " + Data.blueLP);
                     }
@@ -231,7 +238,7 @@ Image {
             }
         }
         onPositionChanged: {
-            if(blueSword0.visible) {
+            if(blueSword0.visible && Data.battleToIndex===-1) {
                 var angle0 = Math.atan((mouseX-blueSword0.x-25)/(blueSword0.y+36-mouseY))
                 if((blueSword0.y+36) < mouseY) {
                     blueSword0.rotation = angle0/3.1415*180 + 180

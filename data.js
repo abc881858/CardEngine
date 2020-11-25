@@ -2,12 +2,12 @@
 
 var array = '{\
 "0":{"name":"null","description":"","attribute":"No_Attribute","level":"0","kind":"No_Kind","type":"No_Type","atk":"-1","def":"-1"},\
-"1":{"name":"meleecreepgood","description":"meleecreepgood","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
-"2":{"name":"meleecreepbad","description":"meleecreepbad","attribute":"Dark_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
-"3":{"name":"rangedcreepgood","description":"rangedcreepgood","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1200","def":"1300"},\
-"4":{"name":"rangedcreepbad","description":"rangedcreepbad","attribute":"Dark_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1200","def":"1300"},\
-"5":{"name":"zeus","description":"zeus","attribute":"Light_Attribute","level":"2","kind":"EffectMonster_Kind","type":"Spellcaster_Type","atk":"500","def":"350"},\
-"6":{"name":"axe","description":"axe","attribute":"Earth_Attribute","level":"7","kind":"EffectMonster_Kind","type":"BeastWarrior_Type","atk":"1900","def":"1400"}\
+"1":{"name":"meleecreepgood","description":"【天使族】\\n我一般见谁不顺眼就打谁的","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
+"2":{"name":"meleecreepbad","description":"【恶魔族】\\n我最大的梦想就是把夜魇的枯树换成天辉的","attribute":"Dark_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1300","def":"1200"},\
+"3":{"name":"rangedcreepgood","description":"【天使族】\\n我们踏过青草与玫瑰，走向血河以北，用呐喊搭建虚构的耀武扬威。我们明白没有凯旋而归，明白死亡总是无声而纯粹。我们拔出刀剑，今夜再不能饮醉，天辉万岁","attribute":"Light_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1200","def":"1300"},\
+"4":{"name":"rangedcreepbad","description":"【恶魔族】\\n英雄之所以为英雄，是因为他们沐浴在圣光中诞生。他们可以拿起武器，穿上盔甲，大杀四方。即便死了，他们也可以在圣泉中重生。而我们只不过是没有灵魂的躯壳罢了","attribute":"Dark_Attribute","level":"3","kind":"NormalMonster_Kind","type":"Warrior_Type","atk":"1200","def":"1300"},\
+"5":{"name":"zeus","description":"【魔法师族·效果】\\n①当自己场上有其他怪兽时，这张卡可以从手牌特殊召唤。\\n②一回合一次，丢弃一张手牌发动，破坏对方场上一只怪兽\\n③一回合一次，丢弃两张手牌发动，对方场上怪兽守备力降低1000点，怪兽守备力降至0的场合破坏怪兽。若这张卡装备了[阿哈利姆神杖]则改为降低2000点守备力。","attribute":"Light_Attribute","level":"2","kind":"EffectMonster_Kind","type":"Spellcaster_Type","atk":"500","def":"350"},\
+"6":{"name":"axe","description":"【兽战士族·效果】\\n①对方进入战斗流程时，这张卡可以变为表侧守备表示且守备力上升1500，强制对方所有怪兽变为表侧攻击表示[翻转效果不发动]且必须对这张卡发动攻击。\\n②这张卡受到怪兽攻击时，降低对方500攻·防。\\n③一回合一次，丢弃一张手牌，选择对方场上一只表侧表示的怪兽，若该怪兽守备力大于1000则降低700点防御力，否则破坏此怪兽并抽一张卡，若成功破坏了怪兽，此效果可以再次使用。若装备了[阿哈利姆神杖]则改为大于1500。","attribute":"Earth_Attribute","level":"7","kind":"EffectMonster_Kind","type":"BeastWarrior_Type","atk":"1900","def":"1400"}\
 }'
 var boardCards;
 var boardSocket;
