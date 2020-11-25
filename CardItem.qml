@@ -2,27 +2,55 @@ import QtQuick 2.0
 import QtGraphicalEffects 1.12
 import "data.js" as Data
 
-Flipable {
+Item {
     id: card_item
+    width: 50
+    height: 72
+    state: "none"
+
+    property int isdn
     property int index
     property var judgeResult: []
     property int judgeIndex: 0
-    property alias swordVisiable: sword.visible
 
-    front: Image { id: frontItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_item }
-    back: Image { id: backItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_item }
+    property alias swordVisible: sword.visible
+
+    // 0：无 1：等待攻击 2：选择了攻击来源 3：选择了攻击目标
+    property int battleState: 0
+
+    Flipable {
+        id: card_image
+        anchors.fill: card_item
+        front: Image { id: frontItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_image }
+        back: Image { id: backItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_image }
+        transform: [
+            Rotation {
+                id: rotationFace;
+                origin.x: card_image.width / 2;
+                origin.y: card_image.height / 2
+                axis { x: 0; y: 1; z: 0 }
+                angle: 180
+            },
+            Rotation {
+                id: rotationStand;
+                origin.x: card_image.width / 2;
+                origin.y: card_image.height / 2
+                axis { x: 0; y: 0; z: 1 }
+            }
+        ]
+    }
 
     Image {
         id: sword
-        anchors.centerIn: parent
+        anchors.fill: card_item
         source: "qrc:/image/sword.png"
+        opacity: 0.5
         visible: false
     }
 
     TextInput {
         id: label
-        anchors.horizontalCenter: frontItem.horizontalCenter
-        anchors.top: frontItem.bottom
+        anchors.horizontalCenter: card_image.horizontalCenter
         anchors.topMargin: 5
         width: 65
         height: 17
@@ -35,59 +63,7 @@ Flipable {
         text: Data.boardCards[isdn]["atk"] + "/" + Data.boardCards[isdn]["def"];
     }
 
-    width: 50
-    height: 72
-    state: "none"
-
-    transform: [
-        Rotation {
-            id: rotationFace;
-            origin.x: card_item.width / 2;
-            origin.y: card_item.height / 2
-            axis { x: 0; y: 1; z: 0 }
-            angle: 180
-        },
-        Rotation {
-            id: rotationStand;
-            origin.x: card_item.width / 2;
-            origin.y: card_item.height / 2
-            axis { x: 0; y: 0; z: 1 }
-        }
-    ]
-
-    property int isdn
-    onIsdnChanged: {
-        if(state === "blueDeckArea") {
-            frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-        } else if(state === "redDeckArea") {
-            frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-            backItem.source = "qrc:/image/area/null2.png"
-        }
-    }
-
     //0:deck 1:hand 2:front 3:back 4:grave
-    property bool isInHand : false
-    onIsInHandChanged: {
-        if(isInHand) {
-            frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
-            card_item.width = 100
-            card_item.height = 145
-            if(state === "blueDeckArea") {
-                backItem.source = "qrc:/image/hand/null.png"
-            } else {
-                backItem.source = "qrc:/image/hand/null2.png"
-            }
-        } else {
-            frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-            card_item.width = 50
-            card_item.height = 72
-            if(state === "blueDeckArea") {
-                backItem.source = "qrc:/image/area/null.png"
-            } else {
-                backItem.source = "qrc:/image/area/null2.png"
-            }
-        }
-    }
     property bool highlight: false
     onHighlightChanged: {
     }
@@ -95,31 +71,15 @@ Flipable {
     states: [
         State {
             name: "blueDeckArea"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "blueHandArea"
-            PropertyChanges {
-                target: card_item
-                isInHand: true
-            }
         },
         State {
             name: "blueVerticalFaceupFront"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "blueHorizontalFacedownFront"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "blueActiveBack"
@@ -129,48 +89,48 @@ Flipable {
         },
         State {
             name: "redDeckArea"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "redHandArea"
-            PropertyChanges {
-                target: card_item
-                isInHand: true
-            }
         },
         State {
             name: "redVerticalFaceupFront"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "redHorizontalFacedownFront"
-            PropertyChanges {
-                target: card_item
-                isInHand: false
-            }
         },
         State {
             name: "redActiveBack"
         },
         State {
             name: "redSetBack"
-        },
-        State {
-            name: "blueBattle"
         }
     ]
 
     transitions: [
         Transition {
+            to: "blueDeckArea"
+            ScriptAction {
+                script: {
+                    frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                    backItem.source = "qrc:/image/area/null.png"
+                    card_item.width = 50
+                    card_item.height = 72
+                }
+            }
+        },
+        Transition {
             from: "blueDeckArea"
             to: "blueHandArea"
             SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/hand/null.png"
+                        card_item.width = 100
+                        card_item.height = 145
+                    }
+                }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: 732; to: x; duration: 200 }
                     NumberAnimation { target: card_item; properties: "y"; from: 441; to: 529; duration: 200 }
@@ -183,6 +143,14 @@ Flipable {
             from: "blueHandArea"
             to: "blueVerticalFaceupFront"
             SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/area/null.png"
+                        card_item.width = 50
+                        card_item.height = 72
+                    }
+                }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: x; to: 350+78*card_item.index; duration: 200 }
                     NumberAnimation { target: card_item; properties: "y"; from: y; to: 317; duration: 200 }
@@ -190,8 +158,9 @@ Flipable {
                 }
                 ScriptAction {
                     script: {
-                        label.visible = true
                         Data.adjustBlueHand();
+                        label.anchors.top = card_image.bottom
+                        label.visible = true
                     }
                 }
             }
@@ -200,6 +169,14 @@ Flipable {
             from: "blueHandArea"
             to: "blueHorizontalFacedownFront"
             SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/area/null.png"
+                        card_item.width = 50
+                        card_item.height = 72
+                    }
+                }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: x; to: 348+78*card_item.index; duration: 200 }
                     NumberAnimation { target: card_item; properties: "y"; from: y; to: 325; duration: 200 }
@@ -215,18 +192,47 @@ Flipable {
             }
         },
         Transition {
+            to: "redDeckArea"
+            ScriptAction {
+                script: {
+                    frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                    backItem.source = "qrc:/image/area/null2.png"
+                    card_item.width = 50
+                    card_item.height = 72
+                }
+            }
+        },
+        Transition {
             from: "redDeckArea"
             to: "redHandArea"
-            ParallelAnimation {
-                NumberAnimation { target: card_item; properties: "x"; from: 270; to: x; duration: 200 }
-                NumberAnimation { target: card_item; properties: "y"; from: 105; to: -71; duration: 200 }
-                NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
+            SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/hand/null2.png"
+                        card_item.width = 100
+                        card_item.height = 145
+                    }
+                }
+                ParallelAnimation {
+                    NumberAnimation { target: card_item; properties: "x"; from: 270; to: x; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: 105; to: -71; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
+                }
             }
         },
         Transition {
             from: "redHandArea"
             to: "redVerticalFaceupFront"
             SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/area/null2.png"
+                        card_item.width = 50
+                        card_item.height = 72
+                    }
+                }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: x; to: 350+78*(4-card_item.index); duration: 200 }
                     NumberAnimation { target: card_item; properties: "y"; from: y; to: 213; duration: 200 }
@@ -237,6 +243,7 @@ Flipable {
                 ScriptAction {
                     script: {
                         Data.adjustRedHand();
+                        label.anchors.bottom = card_image.top
                         label.visible = true
                     }
                 }
@@ -246,11 +253,19 @@ Flipable {
             from: "redHandArea"
             to: "redHorizontalFacedownFront"
             SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "qrc:/image/area/null.png"
+                        card_item.width = 50
+                        card_item.height = 72
+                    }
+                }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: x; to: 348+78*(4-card_item.index); duration: 200 }
                     NumberAnimation { target: card_item; properties: "y"; from: y; to: 213; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
-                    NumberAnimation { target: rotationStand; from: 0; to: 90; property: "angle"; duration: 200 }
+                    NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 200 }
                 }
                 ScriptAction {
                     script: {
@@ -260,11 +275,82 @@ Flipable {
             }
         },
         Transition {
-            from: "blueVerticalFaceupFront";
-            to: "blueBattle";
-            ScriptAction {
-                script: {
-                    swordVisiable = true;
+            from: "redHorizontalFacedownFront"
+            to: "redHorizontalFaceupFront"
+            SequentialAnimation {
+                NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
+                ScriptAction {
+                    script: {
+                        label.anchors.bottom = card_image.top
+                        label.visible = true
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "blueVerticalFaceupFront"
+            to: "blueGrave"
+            SequentialAnimation {
+                ParallelAnimation {
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 741; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 330; duration: 200 }
+                }
+                ScriptAction {
+                    script: {
+                        label.visible = false
+                        card_item.z = 5+Data.blueGraveCards.length
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "blueHorizontalFaceupFront"
+            to: "blueGrave"
+            SequentialAnimation {
+                ParallelAnimation {
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 741; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 330; duration: 200 }
+                    NumberAnimation { target: rotationStand; to: 0; property: "angle"; duration: 200 }
+                }
+                ScriptAction {
+                    script: {
+                        label.visible = false
+                        card_item.z = 5+Data.blueGraveCards.length
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "redVerticalFaceupFront"
+            to: "redGrave"
+            SequentialAnimation {
+                ParallelAnimation {
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 271; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 200; duration: 200 }
+                    NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
+                }
+                ScriptAction {
+                    script: {
+                        label.visible = false
+                        card_item.z = 5+Data.redGraveCards.length
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "redHorizontalFaceupFront"
+            to: "redGrave"
+            SequentialAnimation {
+                ParallelAnimation {
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 271; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 200; duration: 200 }
+                    NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
+                }
+                ScriptAction {
+                    script: {
+                        label.visible = false
+                        card_item.z = 5+Data.redGraveCards.length
+                    }
                 }
             }
         }
@@ -311,19 +397,28 @@ Flipable {
             } else if(card_item.state === "redHandArea") {
                 card_item.y = -36;
                 Data.sendInfoImage(0)
-            } else if(card_item.state === "redVerticalFaceupFront") {
+            } else if(card_item.state === "redVerticalFaceupFront" ||
+                      card_item.state === "redHorizontalFaceupFront" ||
+                      card_item.state === "blueVerticalFaceupFront" ||
+                      card_item.state === "blueHorizontalFacedownFront") {
                 Data.sendInfoImage(isdn)
             } else if(card_item.state === "redHorizontalFacedownFront") {
                 Data.sendInfoImage(0)
-            } else if(card_item.state === "blueVerticalFaceupFront" ||
-                      card_item.state === "blueHorizontalFacedownFront") {
-                Data.sendInfoImage(isdn);
-                judgeResult = Data.judgeFrontCard(card_item.index);
-                judgeCursor();
-            } else if(card_item.state == "blueBattle") {
-                Data.sendInfoImage(isdn);
-                judgeResult = Data.judgeFrontCard(card_item.index);
-                judgeCursor();
+            }
+            if(Data.phase === 3 || Data.phase === 5) {
+                if(card_item.state === "blueVerticalFaceupFront" ||
+                        card_item.state === "blueHorizontalFacedownFront") {
+                    judgeResult = Data.judgeFrontCard(card_item.index);
+                    judgeCursor();
+                }
+            } else if(Data.phase === 4) {
+                if (card_item.battleState === 1) {
+                    judgeResult = Data.judgeFrontCard(card_item.index);
+                    judgeCursor();
+                } else if(card_item.battleState === 2) {
+                    judgeResult = Data.judgeFrontCard(card_item.index);
+                    judgeCursor();
+                }
             }
         }
         onExited: {
@@ -334,13 +429,12 @@ Flipable {
                 judgeResult = [];
             } else if(card_item.state === "redHandArea") {
                 card_item.y = -71;
-                Data.sendInfoImage(0)
             } else if(card_item.state === "blueVerticalFaceupFront" ||
                       card_item.state === "blueHorizontalFacedownFront") {
                 cursorArea.cursorShape = Qt.ArrowCursor;
                 judgeIndex = 0;
                 judgeResult = [];
-            } else if(card_item.state == "blueBattle") {
+            } else if(card_item.battleState === 1) {
                 cursorArea.cursorShape = Qt.ArrowCursor;
                 judgeIndex = 0;
                 judgeResult = [];
@@ -400,6 +494,21 @@ Flipable {
                     }
                 } else if(judgeResult[judgeIndex] === 7) {
                     Data.battleFromIndex = card_item.index;
+                    card_item.swordVisible = false;
+                    Data.blueSword.visible = true;
+                    Data.blueSword.x = 350+78*card_item.index
+                    Data.blueSword.indexFrom = card_item.index;
+                    Data.mouseAreaBoardObject.enabled = true;
+                    card_item.battleState = 2;
+                } else if(card_item.state === "redVerticalFaceupFront" ||
+                          card_item.state === "redHorizontalFacedownFront" ||
+                          card_item.state === "redHorizontalFaceupFront") {
+                    if(Data.battleFromIndex !== -1) {
+                        Data.battleToIndex = card_item.index;
+                        Data.blueSword.indexTo = card_item.index;
+                        Data.blueFrontCards[Data.battleFromIndex].battleState = 3;
+                        Data.blueSwordAnimationObject.start();
+                    }
                 }
             }
         }

@@ -25,6 +25,8 @@ var dialogText;
 var dialogObject;
 var infoImageObject;
 var infoTextObject;
+var mouseAreaBoardObject;
+var blueSwordAnimationObject;
 
 var blueHandCards = []
 var blueFrontCards = new Array(5)
@@ -38,8 +40,11 @@ var redBackCards = new Array(5)
 var redGraveCards = []
 var redDeckCards = []
 
-var battleFromIndex;
-var battleToIndex;
+var battleFromIndex = -1;
+var battleToIndex = -1;
+
+var blueSword;
+var redSword;
 
 //blue DP 1
 //blue SP 2
@@ -195,8 +200,10 @@ function judgeFrontCard(index) {
         }
     }
     else if(phase===4) {
-        if(canAttack(blueFrontCards[index])) {
-            result.push(7);
+        if(battleFromIndex === -1) {
+            if(canAttack(blueFrontCards[index])) {
+                result.push(7);
+            }
         }
     }
 
@@ -291,26 +298,41 @@ function go_standby_phase() {
 
 function go_main1_phase() {
     phase = 3;
+    blueSummonEnable = true;
 }
 
 function go_battle_phase() {
     phase = 4;
     for(var index = 0; index<5; index++) {
-        if(blueFrontCards[index] !== undefined) blueFrontCards[index].state = "blueBattle"
+        if(blueFrontCards[index] !== undefined) {
+            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
+                blueFrontCards[index].battleState = 1
+                blueFrontCards[index].swordVisible = true;
+            }
+        }
     }
-
-//    if(blueFrontCards[0] !== undefined) blueFrontCards[0].stateswordVisiable = true;
-//    if(blueFrontCards[1] !== undefined) blueFrontCards[1].swordVisiable = true;
-//    if(blueFrontCards[2] !== undefined) blueFrontCards[2].swordVisiable = true;
-//    if(blueFrontCards[3] !== undefined) blueFrontCards[3].swordVisiable = true;
-//    if(blueFrontCards[4] !== undefined) blueFrontCards[4].swordVisiable = true;
 }
 
 function go_main2_phase() {
     phase = 5;
+    for(var index = 0; index<5; index++) {
+        if(blueFrontCards[index] !== undefined) {
+            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
+                blueFrontCards[index].battleState = 0
+                blueFrontCards[index].swordVisible = false;
+            }
+        }
+    }
 }
 
 function go_end_phase() {
     phase = 6;
-    blueSummonEnable = true;
+    for(var index = 0; index<5; index++) {
+        if(blueFrontCards[index] !== undefined) {
+            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
+                blueFrontCards[index].battleState = 0
+                blueFrontCards[index].swordVisible = false;
+            }
+        }
+    }
 }
