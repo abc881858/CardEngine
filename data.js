@@ -68,7 +68,8 @@ function sendInfoImage(isdn) {
     infoTextObject.text = boardCards[isdn]["description"]
 }
 
-function startGame() {
+function start_game() {
+    console.log("receive start game");
     boardCards = JSON.parse(array);
     console.log("set up blue deck...");
     for(let blueIndex in blueDeck) {
@@ -78,8 +79,8 @@ function startGame() {
             blueDeckImage.state = "blueDeckArea";
             blueDeckImage.index = blueDeckCards.length;
             blueDeckImage.isdn = Number(blueDeck[blueIndex]);
-            blueDeckImage.x = 732+1*blueIndex;
-            blueDeckImage.y = 441-1*blueIndex;
+            blueDeckImage.x = 732*1.8+1*1.8*blueIndex;
+            blueDeckImage.y = 441*1.8-1*1.8*blueIndex;
             blueDeckImage.z = 2;
             blueDeckCards.push(blueDeckImage);
         }
@@ -92,8 +93,8 @@ function startGame() {
             redDeckImage.state = "redDeckArea";
             redDeckImage.index = redDeckCards.length;
             redDeckImage.isdn = Number(redDeck[redIndex]);
-            redDeckImage.x = 270-1*redIndex;
-            redDeckImage.y = 105-1*redIndex;
+            redDeckImage.x = 270*1.8-1*1.8*redIndex;
+            redDeckImage.y = 105*1.8-1*1.8*redIndex;
             redDeckImage.z = 2;
             redDeckCards.push(redDeckImage);
         }
@@ -102,22 +103,22 @@ function startGame() {
 
 function adjustBlueHand() {
     var n = blueHandCards.length;
-    var card_skip = (n > 5) ? (412 / (n - 1)) : 102;
+    var card_skip = (n > 5) ? (412*1.8 / (n - 1)) : 102*1.8;
     for(let index in blueHandCards) {
-        blueHandCards[index].x = 275 + card_skip * index;
-        blueHandCards[index].y = 529;
-        blueHandCards[index].z = 100 + 0.1 * index;
+        blueHandCards[index].x = 275*1.8 + card_skip * index;
+        blueHandCards[index].y = 529*1.8;
+        blueHandCards[index].z = 100*1.8 + 0.1*1.8 * index;
         blueHandCards[index].index = index;
     }
 }
 
 function adjustRedHand() {
     var n = redHandCards.length;
-    var card_skip = (n > 5) ? (412 / (n - 1)) : 102;
+    var card_skip = (n > 5) ? (412*1.8 / (n - 1)) : 102*1.8;
     for(let index in redHandCards) {
-        redHandCards[index].x = 275 + 408 - card_skip * index;
-        redHandCards[index].y = -71;
-        redHandCards[index].z = 100 + 0.1 * index;
+        redHandCards[index].x = 275*1.8 + 408*1.8 - card_skip * index;
+        redHandCards[index].y = -71*1.8;
+        redHandCards[index].z = 100*1.8 + 0.1*1.8 * index;
         redHandCards[index].index = index;
     }
 }
@@ -281,11 +282,6 @@ function dialog_show(text) {
     console.log("receive dialog show " + text);
     dialogText.text = text
     dialogObject.visible = true
-}
-
-function start_game() {
-    console.log("receive start game");
-    startGame();
 }
 
 function go_draw_phase() {

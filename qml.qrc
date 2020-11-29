@@ -39,5 +39,6 @@
         <file>CardItem.qml</file>
         <file>image/area/null2.png</file>
         <file>image/hand/null2.png</file>
+        <file>image/bg.png</file>
     </qresource>
 </RCC>

@@ -1,11 +1,12 @@
-QT += quick websockets
+QT += quick websockets androidextras
 
 CONFIG += c++11
 
 DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
-        main.cpp
+        main.cpp \
+        qmlandroidorientation.cpp
 
 RESOURCES += qml.qrc
 
@@ -14,3 +15,6 @@ QML_IMPORT_PATH =
 
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
+
+HEADERS += \
+    qmlandroidorientation.h
