@@ -1,6 +1,7 @@
 import QtQuick 2.0
 import QtGraphicalEffects 1.12
 import "data.js" as Data
+import QtQuick.Controls 2.14
 
 Item {
     id: card_item
@@ -14,6 +15,9 @@ Item {
     property int judgeIndex: 0
 
     property alias swordVisible: sword.visible
+    property alias highlightVisible: highlight_image.visible
+    property alias highlightRotation: highlight_image.rotation
+    property alias highlightSource: highlight_image.source
 
     // 0：无 1：等待攻击 2：选择了攻击来源 3：选择了攻击目标
     property int battleState: 0
@@ -48,12 +52,21 @@ Item {
         visible: false
     }
 
+    Image {
+        id: highlight_image
+        anchors.fill: card_item
+        x: -5
+        y: -5
+        source: "qrc:/image/chooseBlue.png"
+        visible: false
+    }
+
     TextInput {
         id: label
         anchors.horizontalCenter: card_image.horizontalCenter
         anchors.topMargin: 5
-        width: 65*1.8
-        height: 17*1.8
+        width: 117
+        height: 31
         color: "#ffffff"
         font.pixelSize: 18
         font.bold: true
@@ -63,10 +76,58 @@ Item {
         text: Data.boardCards[isdn]["atk"] + "/" + Data.boardCards[isdn]["def"];
     }
 
-    //0:deck 1:hand 2:front 3:back 4:grave
-    property bool highlight: false
-    onHighlightChanged: {
+    Button {
+        id: summonButton
+        y: -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 260
+        height: 60
+        text: "召唤"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            var place2 = Data.findBlueFrontIndex();
+            if(place2 !== -1) {
+                var old_place2 = card_item.index;
+                Data.blueHandCards.splice(old_place2, 1);
+                Data.blueFrontCards[place2] = card_item;
+                card_item.index = place2;
+                card_item.z = 2;
+                Data.blueSummonEnable = false;
+                card_item.highlightVisible = false;
+                delete Data.oldSelectCard;
+                card_item.state = "blueVerticalFaceupFront";
+                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
+            }
+        }
     }
+
+    Button {
+        id: setButton
+        y: -140
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 260
+        height: 60
+        text: "放置"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+    }
+
+    Button {
+        id: specialButton
+        y: -210
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 260
+        height: 60
+        text: "特殊召唤"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+    }
+
+    //0:deck 1:hand 2:front 3:back 4:grave
 
     states: [
         State {
@@ -74,6 +135,9 @@ Item {
         },
         State {
             name: "blueHandArea"
+        },
+        State {
+            name: "blueHandAreaHighlight"
         },
         State {
             name: "blueVerticalFaceupFront"
@@ -101,6 +165,9 @@ Item {
         },
         State {
             name: "redHandArea"
+        },
+        State {
+            name: "redHandAreaHighlight"
         },
         State {
             name: "redVerticalFaceupFront"
@@ -132,8 +199,8 @@ Item {
                 script: {
                     frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                     backItem.source = "qrc:/image/area/null.png"
-                    card_item.width = 50*1.8
-                    card_item.height = 72*1.8
+                    card_item.width = 90
+                    card_item.height = 130
                 }
             }
         },
@@ -145,13 +212,13 @@ Item {
                     script: {
                         frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/hand/null.png"
-                        card_item.width = 100*1.8
-                        card_item.height = 145*1.8
+                        card_item.width = 180
+                        card_item.height = 261
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: 732*1.8; to: x; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: 441*1.8; to: 529*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: 1318; to: x; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: 794; to: 952; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
                     NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
                 }
@@ -159,19 +226,55 @@ Item {
         },
         Transition {
             from: "blueHandArea"
+            to: "blueHandAreaHighlight"
+            SequentialAnimation {
+                NumberAnimation { target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
+                ScriptAction {
+                    script: {
+                        if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
+                            if(Data.findBlueFrontIndex() !== -1) {
+                                if(Data.blueSummonEnable) {
+                                    summonButton.visible = true;
+                                    setButton.visible = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "blueHandAreaHighlight"
+            to: "blueHandArea"
+            SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        summonButton.visible = false;
+                        setButton.visible = false;
+                        specialButton.visible = false;
+                    }
+                }
+            }
+            NumberAnimation { target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
+        },
+        Transition {
+            from: "blueHandAreaHighlight"
             to: "blueVerticalFaceupFront"
             SequentialAnimation {
                 ScriptAction {
                     script: {
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
-                        card_item.width = 50*1.8
-                        card_item.height = 72*1.8
+                        card_item.width = 90
+                        card_item.height = 130
+                        summonButton.visible = false;
+                        setButton.visible = false;
+                        specialButton.visible = false;
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 350*1.8+78*1.8*card_item.index; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 317*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*card_item.index; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 571; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
                 }
                 ScriptAction {
@@ -184,20 +287,23 @@ Item {
             }
         },
         Transition {
-            from: "blueHandArea"
+            from: "blueHandAreaHighlight"
             to: "blueHorizontalFacedownFront"
             SequentialAnimation {
                 ScriptAction {
                     script: {
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
-                        card_item.width = 50*1.8
-                        card_item.height = 72*1.8
+                        card_item.width = 90
+                        card_item.height = 130
+                        summonButton.visible = false;
+                        setButton.visible = false;
+                        specialButton.visible = false;
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 348*1.8+78*1.8*card_item.index; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 325*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*card_item.index; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 585; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
                     NumberAnimation { target: rotationFace; from: 0; to: 180; property: "angle"; duration: 200 }
                     NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 200 }
@@ -215,8 +321,8 @@ Item {
                 script: {
                     frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                     backItem.source = "qrc:/image/area/null2.png"
-                    card_item.width = 50*1.8
-                    card_item.height = 72*1.8
+                    card_item.width = 90
+                    card_item.height = 130
                 }
             }
         },
@@ -228,32 +334,42 @@ Item {
                     script: {
                         frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/hand/null2.png"
-                        card_item.width = 100*1.8
-                        card_item.height = 145*1.8
+                        card_item.width = 180
+                        card_item.height = 261
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: 270*1.8; to: x; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: 105*1.8; to: -71*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: 486; to: x; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: 189; to: -128; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
                 }
             }
         },
         Transition {
             from: "redHandArea"
+            to: "redHandAreaHighlight"
+            NumberAnimation { target: card_item; properties: "y"; from: -128; to: -65; duration: 200 }
+        },
+        Transition {
+            from: "redHandAreaHighlight"
+            to: "redHandArea"
+            NumberAnimation { target: card_item; properties: "y"; from: -65; to: -128; duration: 200 }
+        },
+        Transition {
+            from: "redHandAreaHighlight"
             to: "redVerticalFaceupFront"
             SequentialAnimation {
                 ScriptAction {
                     script: {
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null2.png"
-                        card_item.width = 50*1.8
-                        card_item.height = 72*1.8
+                        card_item.width = 90
+                        card_item.height = 130
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 350*1.8+78*1.8*(4-card_item.index); duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 213*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*(4-card_item.index); duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
                     NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
                     NumberAnimation { target: rotationStand; from: 0; to: 180; property: "angle"; duration: 200 }
@@ -268,20 +384,20 @@ Item {
             }
         },
         Transition {
-            from: "redHandArea"
+            from: "redHandAreaHighlight"
             to: "redHorizontalFacedownFront"
             SequentialAnimation {
                 ScriptAction {
                     script: {
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
-                        card_item.width = 50*1.8
-                        card_item.height = 72*1.8
+                        card_item.width = 90
+                        card_item.height = 130
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 348*1.8+78*1.8*(4-card_item.index); duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 213*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*(4-card_item.index); duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 200 }
                     NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
                     NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 200 }
                 }
@@ -310,8 +426,8 @@ Item {
             to: "blueGrave"
             SequentialAnimation {
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 741*1.8; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 330*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 1334; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 594; duration: 200 }
                 }
                 ScriptAction {
                     script: {
@@ -326,8 +442,8 @@ Item {
             to: "blueGrave"
             SequentialAnimation {
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 741*1.8; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 330*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 1334; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 594; duration: 200 }
                     NumberAnimation { target: rotationStand; to: 0; property: "angle"; duration: 200 }
                 }
                 ScriptAction {
@@ -343,8 +459,8 @@ Item {
             to: "redGrave"
             SequentialAnimation {
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 271*1.8; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 200*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 360; duration: 200 }
                     NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
                 }
                 ScriptAction {
@@ -360,8 +476,8 @@ Item {
             to: "redGrave"
             SequentialAnimation {
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 271*1.8; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 200*1.8; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 360; duration: 200 }
                     NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
                 }
                 ScriptAction {
@@ -374,165 +490,12 @@ Item {
         }
     ]
 
-    function judgeCursor() {
-        if(judgeResult[judgeIndex] === 1) {
-            console.log("fadongxiaoguo....")//发动效果
-            cursorArea.cursorShape = Qt.WaitCursor
-        } else if(judgeResult[judgeIndex] === 2) {
-            console.log("teshuzhaohuan....")//特殊召唤
-            cursorArea.cursorShape = Qt.PointingHandCursor
-        } else if(judgeResult[judgeIndex] === 3) {
-            console.log("zhaohuan....")//召唤
-            cursorArea.cursorShape = Qt.OpenHandCursor
-        } else if(judgeResult[judgeIndex] === 4) {
-            console.log("fangzhi....")//放置
-            cursorArea.cursorShape = Qt.ClosedHandCursor
-        } else if(judgeResult[judgeIndex] === 5) {
-            console.log("gongjibiaoshi....")//攻击表示
-            cursorArea.cursorShape = Qt.SizeVerCursor
-        } else if(judgeResult[judgeIndex] === 6) {
-            console.log("fangyubiaoshi....")//防御表示
-            cursorArea.cursorShape = Qt.SizeHorCursor
-        } else if(judgeResult[judgeIndex] === 7) {
-            console.log("gongji....")//攻击
-            cursorArea.cursorShape = Qt.SizeAllCursor
-        } else {
-            cursorArea.cursorShape = Qt.ArrowCursor//无
-        }
-    }
-
     MouseArea {
         id: cursorArea
         anchors.fill: card_item
-        hoverEnabled : true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton
-        onEntered: {
-            if(card_item.state === "blueHandArea") {
-                card_item.y = 494*1.8;
-                Data.sendInfoImage(isdn)
-                judgeResult = Data.judgeHandCard(card_item.index);
-                judgeCursor();
-            } else if(card_item.state === "redHandArea") {
-                card_item.y = -36*1.8;
-                Data.sendInfoImage(0)
-            } else if(card_item.state === "redVerticalFaceupFront" ||
-                      card_item.state === "redHorizontalFaceupFront" ||
-                      card_item.state === "blueVerticalFaceupFront" ||
-                      card_item.state === "blueVerticalFacedownFront" ||
-                      card_item.state === "blueHorizontalFaceupFront" ||
-                      card_item.state === "blueHorizontalFacedownFront" ||
-                      card_item.state === "blueGrave" ||
-                      card_item.state === "redGrave") {
-                Data.sendInfoImage(isdn)
-            } else if(card_item.state === "redHorizontalFacedownFront") {
-                Data.sendInfoImage(0)
-            }
-            if(Data.phase === 3 || Data.phase === 5) {
-                if(card_item.state === "blueVerticalFaceupFront" ||
-                        card_item.state === "blueHorizontalFacedownFront") {
-                    judgeResult = Data.judgeFrontCard(card_item.index);
-                    judgeCursor();
-                }
-            } else if(Data.phase === 4) {
-                if (card_item.battleState === 1) {
-                    judgeResult = Data.judgeFrontCard(card_item.index);
-                    judgeCursor();
-                } else if(card_item.battleState === 2) {
-                    judgeResult = Data.judgeFrontCard(card_item.index);
-                    judgeCursor();
-                }
-            }
-        }
-        onExited: {
-            if(card_item.state === "blueHandArea") {
-                card_item.y = 529*1.8;
-                cursorArea.cursorShape = Qt.ArrowCursor;
-                judgeIndex = 0;
-                judgeResult = [];
-            } else if(card_item.state === "redHandArea") {
-                card_item.y = -71*1.8;
-            } else if(card_item.state === "blueVerticalFaceupFront" ||
-                      card_item.state === "blueHorizontalFacedownFront") {
-                cursorArea.cursorShape = Qt.ArrowCursor;
-                judgeIndex = 0;
-                judgeResult = [];
-            } else if(card_item.battleState === 1) {
-                cursorArea.cursorShape = Qt.ArrowCursor;
-                judgeIndex = 0;
-                judgeResult = [];
-            }
-        }
+        acceptedButtons: Qt.LeftButton
         onClicked: {
-            if(mouse.button === Qt.RightButton) {
-                var size = judgeResult.length;
-                if(size!==0) {
-                    judgeIndex = (judgeIndex+1)%size;
-                    judgeCursor();
-                }
-            } else {
-                if(judgeResult[judgeIndex] === 2) {
-                    var place3 = Data.findBlueFrontIndex();
-                    if(place3 !== -1) {
-                        var old_place3 = card_item.index;
-                        console.log("receive front special summon " + old_place3);
-                        Data.blueHandCards.splice(old_place3, 1);
-                        Data.blueFrontCards[place3] = card_item;
-                        card_item.index = place3;
-                        card_item.z = 2;
-                        card_item.state = "blueVerticalFaceupFront";
-                        Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
-                    } else {
-                        console.log("can not find empty front area");
-                    }
-                } else if(judgeResult[judgeIndex] === 3) {
-                    var place2 = Data.findBlueFrontIndex();
-                    if(place2 !== -1) {
-                        var old_place2 = card_item.index;
-                        console.log("receive front summon " + old_place2);
-                        Data.blueHandCards.splice(old_place2, 1);
-                        Data.blueFrontCards[place2] = card_item;
-                        card_item.index = place2;
-                        card_item.z = 2;
-                        Data.blueSummonEnable = false;
-                        card_item.state = "blueVerticalFaceupFront";
-                        Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
-                    } else {
-                        console.log("can not find empty front area");
-                    }
-                } else if(judgeResult[judgeIndex] === 4) {
-                    var place = Data.findBlueFrontIndex();
-                    if(place !== -1) {
-                        var old_place = card_item.index;
-                        console.log("receive front set " + old_place);
-                        Data.blueHandCards.splice(old_place, 1);
-                        Data.blueFrontCards[place] = card_item;
-                        card_item.index = place;
-                        card_item.z = 2;
-                        Data.blueSummonEnable = false;
-                        card_item.state = "blueHorizontalFacedownFront";
-                        Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
-                    } else {
-                        console.log("can not find empty front area");
-                    }
-                } else if(judgeResult[judgeIndex] === 7) {
-                    Data.battleFromIndex = card_item.index;
-                    card_item.swordVisible = false;
-                    Data.blueSword.visible = true;
-                    Data.blueSword.x = 350*1.8+78*1.8*card_item.index
-                    Data.blueSword.indexFrom = card_item.index;
-                    Data.mouseAreaBoardObject.enabled = true;
-                    card_item.battleState = 2;
-                } else if(card_item.state === "redVerticalFaceupFront" ||
-                          card_item.state === "redHorizontalFacedownFront" ||
-                          card_item.state === "redHorizontalFaceupFront") {
-                    if(Data.battleFromIndex !== -1) {
-                        Data.battleToIndex = card_item.index;
-                        Data.blueSword.indexTo = card_item.index;
-                        Data.blueFrontCards[Data.battleFromIndex].battleState = 3;
-                        Data.blueSwordAnimationObject.start();
-                    }
-                }
-            }
+            Data.highlightCard(card_item)
         }
     }
 }

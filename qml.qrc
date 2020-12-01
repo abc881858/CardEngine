@@ -1,7 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>main.qml</file>
-        <file>image/beijing.jpg</file>
         <file>image/info/null.png</file>
         <file>image/info/meleecreepbad.png</file>
         <file>image/info/meleecreepgood.png</file>
@@ -18,7 +17,6 @@
         <file>image/area/rangedcreepbad.png</file>
         <file>image/area/rangedcreepgood.png</file>
         <file>BoardItem.qml</file>
-        <file>RemoteItem.qml</file>
         <file>data.js</file>
         <file>image/info/zeus.png</file>
         <file>image/hand/zeus.png</file>
@@ -40,5 +38,53 @@
         <file>image/area/null2.png</file>
         <file>image/hand/null2.png</file>
         <file>image/bg.png</file>
+        <file>image/phase/pha_b_ba.bmp</file>
+        <file>image/phase/pha_b_dr.bmp</file>
+        <file>image/phase/pha_b_en.bmp</file>
+        <file>image/phase/pha_b_m1.bmp</file>
+        <file>image/phase/pha_b_m2.bmp</file>
+        <file>image/phase/pha_b_st.bmp</file>
+        <file>image/phase/pha_r_ba.bmp</file>
+        <file>image/phase/pha_r_dr.bmp</file>
+        <file>image/phase/pha_r_en.bmp</file>
+        <file>image/phase/pha_r_m1.bmp</file>
+        <file>image/phase/pha_r_m2.bmp</file>
+        <file>image/phase/pha_r_st.bmp</file>
+        <file>image/phase/pha_s_ba.bmp</file>
+        <file>image/phase/pha_s_dr.bmp</file>
+        <file>image/phase/pha_s_en.bmp</file>
+        <file>image/phase/pha_s_m1.bmp</file>
+        <file>image/phase/pha_s_m2.bmp</file>
+        <file>image/phase/pha_s_st.bmp</file>
+        <file>image/chooseBlue.png</file>
+        <file>image/chooseRed.png</file>
+        <file>image/selectBlue.png</file>
+        <file>image/selectRed.png</file>
+        <file>image/phase_name/e_ba_b1.png</file>
+        <file>image/phase_name/e_ba_b2.png</file>
+        <file>image/phase_name/e_ba_b3.png</file>
+        <file>image/phase_name/e_ba_b4.png</file>
+        <file>image/phase_name/e_ba_b5.png</file>
+        <file>image/phase_name/e_ba_b6.png</file>
+        <file>image/phase_name/e_ba_b7.png</file>
+        <file>image/phase_name/e_ba_b8.png</file>
+        <file>image/phase_name/e_ba_r1.bmp</file>
+        <file>image/phase_name/e_ba_r2.bmp</file>
+        <file>image/phase_name/e_ba_r3.bmp</file>
+        <file>image/phase_name/e_ba_r4.bmp</file>
+        <file>image/phase_name/e_ba_r5.bmp</file>
+        <file>image/phase_name/e_ba_r6.bmp</file>
+        <file>image/phase_name/e_ba_r7.bmp</file>
+        <file>image/phase_name/e_ba_r8.bmp</file>
+        <file>image/phase_name/e_dr_b.png</file>
+        <file>image/phase_name/e_dr_r.bmp</file>
+        <file>image/phase_name/e_en_b.png</file>
+        <file>image/phase_name/e_en_r.bmp</file>
+        <file>image/phase_name/e_m1_b.png</file>
+        <file>image/phase_name/e_m1_r.bmp</file>
+        <file>image/phase_name/e_m2_b.png</file>
+        <file>image/phase_name/e_m2_r.bmp</file>
+        <file>image/phase_name/e_st_b.png</file>
+        <file>image/phase_name/e_st_r.bmp</file>
     </qresource>
 </RCC>

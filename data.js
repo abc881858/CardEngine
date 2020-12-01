@@ -25,7 +25,6 @@ var dialogText;
 var dialogObject;
 var infoImageObject;
 var infoTextObject;
-var mouseAreaBoardObject;
 var blueSwordAnimationObject;
 
 var blueHandCards = []
@@ -46,26 +45,73 @@ var battleToIndex = -1;
 var blueSword;
 var redSword;
 
-//blue DP 1
-//blue SP 2
-//blue M1 3
-//blue BP 4
-//blue M2 5
-//blue EP 6
+var oldSelectCard;
 
-//red DP -1
-//red SP -2
-//red M1 -3
-//red BP -4
-//red M2 -5
-//red EP -6
-
-var phase = 0;
 var blueSummonEnable = true;
 
 function sendInfoImage(isdn) {
     infoImageObject.source = "qrc:/image/info/" + boardCards[isdn]["name"] +".png";
     infoTextObject.text = boardCards[isdn]["description"]
+}
+
+function highlightCard(item) {
+    if(oldSelectCard !== undefined) {
+        if(oldSelectCard.state === "blueHandAreaHighlight") {
+            oldSelectCard.state = "blueHandArea";
+        } else if(oldSelectCard.state === "redHandAreaHighlight") {
+            oldSelectCard.state = "redHandArea";
+        }
+        oldSelectCard.highlightVisible = false;
+    }
+    oldSelectCard = item;
+
+    if(item.state === "blueHandArea") {
+        item.state = "blueHandAreaHighlight"
+        item.highlightSource = "qrc:/image/chooseBlue.png";
+        item.highlightRotation = 0;
+        item.highlightVisible = true;
+        sendInfoImage(item.isdn)
+    } else if(item.state === "redHandArea") {
+        item.state = "redHandAreaHighlight"
+        item.highlightSource = "qrc:/image/chooseRed.png";
+        item.highlightRotation = 0;
+        item.highlightVisible = true;
+        sendInfoImage(0)
+    } else if(item.state === "redVerticalFaceupFront" ||
+              item.state === "redGrave") {
+        item.highlightSource = "qrc:/image/selectRed.png";
+        item.highlightRotation = 0;
+        item.highlightVisible = true;
+        sendInfoImage(item.isdn)
+    } else if(item.state === "blueVerticalFaceupFront" ||
+              item.state === "blueVerticalFacedownFront" ||
+              item.state === "blueGrave") {
+        item.highlightSource = "qrc:/image/selectBlue.png";
+        item.highlightRotation = 0;
+        item.highlightVisible = true;
+        sendInfoImage(item.isdn)
+    } else if(item.state === "redHorizontalFaceupFront") {
+        item.highlightSource = "qrc:/image/selectRed.png";
+        item.highlightRotation = 90;
+        item.highlightVisible = true;
+        sendInfoImage(item.isdn)
+    } else if(item.state === "blueHorizontalFaceupFront" ||
+              item.state === "blueHorizontalFacedownFront") {
+        item.highlightSource = "qrc:/image/selectBlue.png";
+        item.highlightRotation = 90;
+        item.highlightVisible = true;
+        sendInfoImage(item.isdn)
+    } else if(item.state === "redHorizontalFacedownFront") {
+        item.highlightSource = "qrc:/image/selectRed.png";
+        item.highlightRotation = 90;
+        item.highlightVisible = true;
+        sendInfoImage(0)
+    } else if(item.state === "redVerticalFacedownFront") {
+        item.highlightSource = "qrc:/image/selectRed.png";
+        item.highlightRotation = 0;
+        item.highlightVisible = true;
+        sendInfoImage(0)
+    }
 }
 
 function start_game() {
@@ -79,8 +125,8 @@ function start_game() {
             blueDeckImage.state = "blueDeckArea";
             blueDeckImage.index = blueDeckCards.length;
             blueDeckImage.isdn = Number(blueDeck[blueIndex]);
-            blueDeckImage.x = 732*1.8+1*1.8*blueIndex;
-            blueDeckImage.y = 441*1.8-1*1.8*blueIndex;
+            blueDeckImage.x = 1318+1*1.8*blueIndex;
+            blueDeckImage.y = 794-1*1.8*blueIndex;
             blueDeckImage.z = 2;
             blueDeckCards.push(blueDeckImage);
         }
@@ -93,32 +139,34 @@ function start_game() {
             redDeckImage.state = "redDeckArea";
             redDeckImage.index = redDeckCards.length;
             redDeckImage.isdn = Number(redDeck[redIndex]);
-            redDeckImage.x = 270*1.8-1*1.8*redIndex;
-            redDeckImage.y = 105*1.8-1*1.8*redIndex;
+            redDeckImage.x = 486-1*1.8*redIndex;
+            redDeckImage.y = 189-1*1.8*redIndex;
             redDeckImage.z = 2;
             redDeckCards.push(redDeckImage);
         }
     }
+
+    boardObject.state =  "blueDrawPhase";
 }
 
 function adjustBlueHand() {
     var n = blueHandCards.length;
-    var card_skip = (n > 5) ? (412*1.8 / (n - 1)) : 102*1.8;
+    var card_skip = (n > 5) ? (742 / (n - 1)) : 184;
     for(let index in blueHandCards) {
-        blueHandCards[index].x = 275*1.8 + card_skip * index;
-        blueHandCards[index].y = 529*1.8;
-        blueHandCards[index].z = 100*1.8 + 0.1*1.8 * index;
+        blueHandCards[index].x = 495 + card_skip * index;
+        blueHandCards[index].y = 952;
+        blueHandCards[index].z = 180 + 0.1*1.8 * index;
         blueHandCards[index].index = index;
     }
 }
 
 function adjustRedHand() {
     var n = redHandCards.length;
-    var card_skip = (n > 5) ? (412*1.8 / (n - 1)) : 102*1.8;
+    var card_skip = (n > 5) ? (742 / (n - 1)) : 184;
     for(let index in redHandCards) {
-        redHandCards[index].x = 275*1.8 + 408*1.8 - card_skip * index;
-        redHandCards[index].y = -71*1.8;
-        redHandCards[index].z = 100*1.8 + 0.1*1.8 * index;
+        redHandCards[index].x = 495 + 734 - card_skip * index;
+        redHandCards[index].y = -128;
+        redHandCards[index].z = 180 + 0.1*1.8 * index;
         redHandCards[index].index = index;
     }
 }
@@ -157,58 +205,6 @@ function findRedBackIndex() {
     if(redBackCards[3] === undefined) return 3;
     if(redBackCards[4] === undefined) return 4;
     return -1;
-}
-
-//发动效果 1
-//特殊召唤 2
-//召唤 3
-//放置 4
-function judgeHandCard(index) {
-    var result = [];
-    console.log("judgeHandCard index: " + index);
-    if(phase === 3 || phase === 5) {
-        if(blueHandCards[index].isdn === 5) {
-            if(blueFrontCards[0] !== undefined ||
-                    blueFrontCards[1] !== undefined ||
-                    blueFrontCards[2] !== undefined ||
-                    blueFrontCards[3] !== undefined ||
-                    blueFrontCards[4] !== undefined) {
-                result.push(2);
-            }
-        } if(blueSummonEnable === true) {
-            result.push(3);
-            result.push(4);
-        }
-    }
-
-    return result;
-}
-
-//发动效果 1
-//攻击表示 5
-//防御表示 6
-//攻击 7
-function judgeFrontCard(index) {
-    var result = [];
-    console.log("judgeFrontCard index: " + index);
-    if(phase===3 || phase===5) {
-        if(canEffect(blueFrontCards[index])) {
-            result.push(1);
-        } else if(canTurnAtk(blueFrontCards[index])) {
-            result.push(5);
-        } else if(canTurnDef(blueFrontCards[index])) {
-            result.push(6);
-        }
-    }
-    else if(phase===4) {
-        if(battleFromIndex === -1) {
-            if(canAttack(blueFrontCards[index])) {
-                result.push(7);
-            }
-        }
-    }
-
-    return result;
 }
 
 function canEffect(obj) {
@@ -265,6 +261,7 @@ function redVerticalFaceupFront(index) {
     redFrontCards[place] = frontImage;
     frontImage.index = place;
     frontImage.z = 2;
+    frontImage.state = "redHandAreaHighlight";
     frontImage.state = "redVerticalFaceupFront";
 }
 
@@ -275,6 +272,7 @@ function redHorizontalFacedownFront(index) {
     redFrontCards[place] = frontImage;
     frontImage.index = place;
     frontImage.z = 2;
+    frontImage.state = "redHandAreaHighlight";
     frontImage.state = "redHorizontalFacedownFront";
 }
 
@@ -282,53 +280,4 @@ function dialog_show(text) {
     console.log("receive dialog show " + text);
     dialogText.text = text
     dialogObject.visible = true
-}
-
-function go_draw_phase() {
-    phase = 1;
-}
-
-function go_standby_phase() {
-    phase = 2;
-}
-
-function go_main1_phase() {
-    phase = 3;
-    blueSummonEnable = true;
-}
-
-function go_battle_phase() {
-    phase = 4;
-    for(var index = 0; index<5; index++) {
-        if(blueFrontCards[index] !== undefined) {
-            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                blueFrontCards[index].battleState = 1
-                blueFrontCards[index].swordVisible = true;
-            }
-        }
-    }
-}
-
-function go_main2_phase() {
-    phase = 5;
-    for(var index = 0; index<5; index++) {
-        if(blueFrontCards[index] !== undefined) {
-            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                blueFrontCards[index].battleState = 0
-                blueFrontCards[index].swordVisible = false;
-            }
-        }
-    }
-}
-
-function go_end_phase() {
-    phase = 6;
-    for(var index = 0; index<5; index++) {
-        if(blueFrontCards[index] !== undefined) {
-            if(blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                blueFrontCards[index].battleState = 0
-                blueFrontCards[index].swordVisible = false;
-            }
-        }
-    }
 }
