@@ -19,6 +19,70 @@ Item {
     property alias highlightRotation: highlight_image.rotation
     property alias highlightSource: highlight_image.source
 
+    NumberAnimation { id: highlightAnimation1; target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
+    NumberAnimation { id: unhighlightAnimation1; target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
+    NumberAnimation { id: highlightAnimation2; target: card_item; properties: "y"; from: -128; to: -65; duration: 200 }
+    NumberAnimation { id: unhighlightAnimation2; target: card_item; properties: "y"; from: -65; to: -128; duration: 200 }
+
+    property bool highlight: false
+    onHighlightChanged: {
+        if(highlight) {
+            if(card_item.state === "blueHandArea") {
+                highlight_image.source = "qrc:/image/chooseBlue.png";
+                highlight_image.rotation = 0;
+                highlight_image.visible = true;
+                highlightAnimation1.start();
+                if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
+                    if(Data.findBlueFrontIndex() !== -1) {
+                        if(Data.blueSummonEnable) {
+                            summonButton.visible = true;
+                            setButton.visible = true;
+                        }
+                    }
+                }
+            } else if(card_item.state === "redHandArea") {
+                highlight_image.source = "qrc:/image/chooseRed.png";
+                highlight_image.rotation = 0;
+                highlight_image.visible = true;
+                highlightAnimation2.start();
+            } else if(card_item.state === "blueVerticalFaceupFront" ||
+                      card_item.state === "blueVerticalFacedownFront" ||
+                      card_item.state === "blueGrave") {
+                highlight_image.source = "qrc:/image/selectBlue.png";
+                highlight_image.rotation = 0;
+                highlight_image.visible = true;
+            } else if(card_item.state === "blueHorizontalFaceupFront" ||
+                      card_item.state === "blueHorizontalFacedownFront") {
+                highlight_image.source = "qrc:/image/selectBlue.png";
+                highlight_image.rotation = 90;
+                highlight_image.visible = true;
+            } else if(card_item.state === "redVerticalFaceupFront" ||
+                      card_item.state === "redVerticalFacedownFront" ||
+                      card_item.state === "redGrave") {
+                highlight_image.source = "qrc:/image/selectRed.png";
+                highlight_image.rotation = 0;
+                highlight_image.visible = true;
+            } else if(card_item.state === "redHorizontalFaceupFront" ||
+                      card_item.state === "redHorizontalFacedownFront") {
+                highlight_image.source = "qrc:/image/selectRed.png";
+                highlight_image.rotation = 90;
+                highlight_image.visible = true;
+            }
+            Data.sendInfoImage(card_item.isdn);
+            Data.oldSelectCard = card_item;
+        } else {
+            highlight_image.visible = false;
+            if(card_item.state === "blueHandArea") {
+                unhighlightAnimation1.start();
+                summonButton.visible = false;
+                setButton.visible = false;
+                specialButton.visible = false;
+            } else if(card_item.state === "redHandArea") {
+                unhighlightAnimation2.start();
+            }
+        }
+    }
+
     // 0：无 1：等待攻击 2：选择了攻击来源 3：选择了攻击目标
     property int battleState: 0
 
@@ -79,7 +143,7 @@ Item {
         id: summonButton
         y: -70
         anchors.horizontalCenter: card_image.horizontalCenter
-        width: 260
+        width: 180
         height: 60
         text: "召唤"
         font.pixelSize: 24
@@ -106,24 +170,77 @@ Item {
         id: setButton
         y: -140
         anchors.horizontalCenter: card_image.horizontalCenter
-        width: 260
+        width: 180
         height: 60
         text: "放置"
         font.pixelSize: 24
         font.bold: true
         visible: false
+        onClicked: {
+            var place = Data.findBlueFrontIndex();
+            if(place !== -1) {
+                var old_place = card_item.index;
+                Data.blueHandCards.splice(old_place, 1);
+                Data.blueFrontCards[place] = card_item;
+                card_item.index = place;
+                card_item.z = 2;
+                Data.blueSummonEnable = false;
+                card_item.highlightVisible = false;
+                card_item.state = "blueHorizontalFacedownFront";
+//                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+            }
+        }
     }
 
     Button {
         id: specialButton
         y: -210
         anchors.horizontalCenter: card_image.horizontalCenter
-        width: 260
+        width: 180
         height: 60
         text: "特殊召唤"
         font.pixelSize: 24
         font.bold: true
         visible: false
+        onClicked: {
+            var place3 = Data.findBlueFrontIndex();
+            if(place3 !== -1) {
+                var old_place3 = card_item.index;
+                Data.blueHandCards.splice(old_place3, 1);
+                Data.blueFrontCards[place3] = card_item;
+                card_item.index = place3;
+                card_item.z = 2;
+                card_item.state = "blueVerticalFaceupFront";
+                card_item.highlightVisible = false;
+//                Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
+            }
+        }
+    }
+
+    Button {
+        id: attackButton
+        y: -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 180
+        height: 60
+        text: "攻击"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            var place = Data.findBlueFrontIndex();
+            if(place !== -1) {
+                var old_place = card_item.index;
+                Data.blueHandCards.splice(old_place, 1);
+                Data.blueFrontCards[place] = card_item;
+                card_item.index = place;
+                card_item.z = 2;
+                Data.blueSummonEnable = false;
+                card_item.highlightVisible = false;
+                card_item.state = "blueHorizontalFacedownFront";
+//                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+            }
+        }
     }
 
     states: [
@@ -132,9 +249,6 @@ Item {
         },
         State {
             name: "blueHandArea"
-        },
-        State {
-            name: "blueHandAreaHighlight"
         },
         State {
             name: "blueVerticalFaceupFront"
@@ -223,39 +337,6 @@ Item {
         },
         Transition {
             from: "blueHandArea"
-            to: "blueHandAreaHighlight"
-            SequentialAnimation {
-                NumberAnimation { target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
-                ScriptAction {
-                    script: {
-                        if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
-                            if(Data.findBlueFrontIndex() !== -1) {
-                                if(Data.blueSummonEnable) {
-                                    summonButton.visible = true;
-                                    setButton.visible = true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        Transition {
-            from: "blueHandAreaHighlight"
-            to: "blueHandArea"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        summonButton.visible = false;
-                        setButton.visible = false;
-                        specialButton.visible = false;
-                    }
-                }
-            }
-            NumberAnimation { target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
-        },
-        Transition {
-            from: "blueHandAreaHighlight"
             to: "blueVerticalFaceupFront"
             SequentialAnimation {
                 ScriptAction {
@@ -284,7 +365,7 @@ Item {
             }
         },
         Transition {
-            from: "blueHandAreaHighlight"
+            from: "blueHandArea"
             to: "blueHorizontalFacedownFront"
             SequentialAnimation {
                 ScriptAction {
@@ -490,9 +571,11 @@ Item {
     MouseArea {
         id: cursorArea
         anchors.fill: card_item
-        acceptedButtons: Qt.LeftButton
         onClicked: {
-            Data.highlightCard(card_item)
+            if(Data.oldSelectCard !== undefined) {
+                Data.oldSelectCard.highlight = false;
+            }
+            card_item.highlight = true;
         }
     }
 }

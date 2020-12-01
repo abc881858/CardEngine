@@ -5,10 +5,10 @@
 
 int main(int argc, char *argv[])
 {
-    QGuiApplication app(argc, argv);
-
 //    QmlAndroidOrientation orientation;
 //    orientation.setOrientationLandscape();
+
+    QGuiApplication app(argc, argv);
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

@@ -46,72 +46,13 @@ var blueSword;
 var redSword;
 
 var oldSelectCard;
+var oldhighlight;
 
 var blueSummonEnable = true;
 
 function sendInfoImage(isdn) {
     infoImageObject.source = "qrc:/image/info/" + boardCards[isdn]["name"] +".png";
     infoTextObject.text = boardCards[isdn]["description"]
-}
-
-function highlightCard(item) {
-    if(oldSelectCard !== undefined) {
-        if(oldSelectCard.state === "blueHandAreaHighlight") {
-            oldSelectCard.state = "blueHandArea";
-        } else if(oldSelectCard.state === "redHandAreaHighlight") {
-            oldSelectCard.state = "redHandArea";
-        }
-        oldSelectCard.highlightVisible = false;
-    }
-    oldSelectCard = item;
-
-    if(item.state === "blueHandArea") {
-        item.state = "blueHandAreaHighlight"
-        item.highlightSource = "qrc:/image/chooseBlue.png";
-        item.highlightRotation = 0;
-        item.highlightVisible = true;
-        sendInfoImage(item.isdn)
-    } else if(item.state === "redHandArea") {
-        item.state = "redHandAreaHighlight"
-        item.highlightSource = "qrc:/image/chooseRed.png";
-        item.highlightRotation = 0;
-        item.highlightVisible = true;
-        sendInfoImage(0)
-    } else if(item.state === "redVerticalFaceupFront" ||
-              item.state === "redGrave") {
-        item.highlightSource = "qrc:/image/selectRed.png";
-        item.highlightRotation = 0;
-        item.highlightVisible = true;
-        sendInfoImage(item.isdn)
-    } else if(item.state === "blueVerticalFaceupFront" ||
-              item.state === "blueVerticalFacedownFront" ||
-              item.state === "blueGrave") {
-        item.highlightSource = "qrc:/image/selectBlue.png";
-        item.highlightRotation = 0;
-        item.highlightVisible = true;
-        sendInfoImage(item.isdn)
-    } else if(item.state === "redHorizontalFaceupFront") {
-        item.highlightSource = "qrc:/image/selectRed.png";
-        item.highlightRotation = 90;
-        item.highlightVisible = true;
-        sendInfoImage(item.isdn)
-    } else if(item.state === "blueHorizontalFaceupFront" ||
-              item.state === "blueHorizontalFacedownFront") {
-        item.highlightSource = "qrc:/image/selectBlue.png";
-        item.highlightRotation = 90;
-        item.highlightVisible = true;
-        sendInfoImage(item.isdn)
-    } else if(item.state === "redHorizontalFacedownFront") {
-        item.highlightSource = "qrc:/image/selectRed.png";
-        item.highlightRotation = 90;
-        item.highlightVisible = true;
-        sendInfoImage(0)
-    } else if(item.state === "redVerticalFacedownFront") {
-        item.highlightSource = "qrc:/image/selectRed.png";
-        item.highlightRotation = 0;
-        item.highlightVisible = true;
-        sendInfoImage(0)
-    }
 }
 
 function start_game() {

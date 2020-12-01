@@ -36,6 +36,15 @@ Image {
 //        }
 //    }
 
+    MouseArea {
+        anchors.fill: board
+        onClicked: {
+            if(Data.oldSelectCard !== undefined) {
+                Data.oldSelectCard.highlight = false;
+            }
+        }
+    }
+
     Image {
         id: lp_blue_wan
         x: 102
