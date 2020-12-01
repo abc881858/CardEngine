@@ -1,4 +1,4 @@
-QT += quick websockets
+QT += quick
 
 CONFIG += c++11
 
@@ -14,6 +14,8 @@ QML_IMPORT_PATH = .
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH = .
 
-QT += androidextras
-HEADERS += qmlandroidorientation.h
-SOURCES += qmlandroidorientation.cpp
+#QT += websockets
+
+#QT += androidextras
+#HEADERS += qmlandroidorientation.h
+#SOURCES += qmlandroidorientation.cpp

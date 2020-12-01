@@ -48,7 +48,6 @@ Item {
         id: sword
         anchors.fill: card_item
         source: "qrc:/image/sword.png"
-        opacity: 0.5
         visible: false
     }
 
@@ -98,7 +97,7 @@ Item {
                 card_item.highlightVisible = false;
                 delete Data.oldSelectCard;
                 card_item.state = "blueVerticalFaceupFront";
-                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
+//                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
             }
         }
     }
@@ -126,8 +125,6 @@ Item {
         font.bold: true
         visible: false
     }
-
-    //0:deck 1:hand 2:front 3:back 4:grave
 
     states: [
         State {

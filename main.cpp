@@ -1,15 +1,14 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
-#include <QQuickView>
 #include <QQmlContext>
-#include "qmlandroidorientation.h"
+//#include "qmlandroidorientation.h"
 
 int main(int argc, char *argv[])
 {
     QGuiApplication app(argc, argv);
 
-    QmlAndroidOrientation orientation;
-    orientation.setOrientationLandscape();
+//    QmlAndroidOrientation orientation;
+//    orientation.setOrientationLandscape();
 
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));

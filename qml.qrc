@@ -86,5 +86,16 @@
         <file>image/phase_name/e_m2_r.bmp</file>
         <file>image/phase_name/e_st_b.png</file>
         <file>image/phase_name/e_st_r.bmp</file>
+        <file>image/LP/LP0.png</file>
+        <file>image/LP/LP1.png</file>
+        <file>image/LP/LP2.png</file>
+        <file>image/LP/LP3.png</file>
+        <file>image/LP/LP4.png</file>
+        <file>image/LP/LP5.png</file>
+        <file>image/LP/LP6.png</file>
+        <file>image/LP/LP7.png</file>
+        <file>image/LP/LP8.png</file>
+        <file>image/LP/LP9.png</file>
+        <file>image/LP/NA.png</file>
     </qresource>
 </RCC>

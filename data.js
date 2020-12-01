@@ -10,7 +10,7 @@ var array = '{\
 "6":{"name":"axe","description":"【兽战士族·效果】\\n①对方进入战斗流程时，这张卡可以变为表侧守备表示且守备力上升1500，强制对方所有怪兽变为表侧攻击表示[翻转效果不发动]且必须对这张卡发动攻击。\\n②这张卡受到怪兽攻击时，降低对方500攻·防。\\n③一回合一次，丢弃一张手牌，选择对方场上一只表侧表示的怪兽，若该怪兽守备力大于1000则降低700点防御力，否则破坏此怪兽并抽一张卡，若成功破坏了怪兽，此效果可以再次使用。若装备了[阿哈利姆神杖]则改为大于1500。","attribute":"Earth_Attribute","level":"7","kind":"EffectMonster_Kind","type":"BeastWarrior_Type","atk":"1900","def":"1400"}\
 }'
 var boardCards;
-var boardSocket;
+//var boardSocket;
 
 var turnNumber = 0
 var blueLP = 8000
@@ -232,7 +232,7 @@ function blue_draw_card() {
         blueHandCards.push(handImage);
         adjustBlueHand();
         handImage.state = "blueHandArea";
-        boardSocket.sendTextMessage("draw#"+handImage.isdn);
+//        boardSocket.sendTextMessage("draw#"+handImage.isdn);
     }
 }
 
