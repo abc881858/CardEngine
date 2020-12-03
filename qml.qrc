@@ -84,7 +84,6 @@
         <file>image/LP/LP8.png</file>
         <file>image/LP/LP9.png</file>
         <file>image/LP/NA.png</file>
-        <file>image/dialog1.png</file>
         <file>MenuItem.qml</file>
         <file>image/menu/menu_main_0.png</file>
         <file>image/menu/menu_main_1.png</file>
@@ -119,5 +118,28 @@
         <file>image/phase_name/e_m1_r.png</file>
         <file>image/phase_name/e_m2_r.png</file>
         <file>image/phase_name/e_st_r.png</file>
+        <file>image/eff_rainbow.png</file>
+        <file>image/dialog/dialog1.png</file>
+        <file>image/dialog/dialog2.png</file>
+        <file>image/tip/tip1.png</file>
+        <file>image/tip/tip2.png</file>
+        <file>image/tip/tip3.png</file>
+        <file>image/eff_set_b.png</file>
+        <file>image/dialog/dialog3.png</file>
+        <file>image/dialog/dialog4.png</file>
+        <file>voice/ikenie.wav</file>
+        <file>image/LP/damage0.png</file>
+        <file>image/LP/damage1.png</file>
+        <file>image/LP/damage2.png</file>
+        <file>image/LP/damage3.png</file>
+        <file>image/LP/damage4.png</file>
+        <file>image/LP/damage5.png</file>
+        <file>image/LP/damage6.png</file>
+        <file>image/LP/damage7.png</file>
+        <file>image/LP/damage8.png</file>
+        <file>image/LP/damage9.png</file>
+        <file>image/LP/damageA.png</file>
+        <file>image/LP/damageB.png</file>
+        <file>image/LP/damageNA.png</file>
     </qresource>
 </RCC>

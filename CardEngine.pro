@@ -16,6 +16,6 @@ QML_DESIGNER_IMPORT_PATH = .
 
 #QT += websockets
 
-#QT += androidextras
-#HEADERS += qmlandroidorientation.h
-#SOURCES += qmlandroidorientation.cpp
+QT += androidextras
+HEADERS += qmlandroidorientation.h
+SOURCES += qmlandroidorientation.cpp

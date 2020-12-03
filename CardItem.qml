@@ -15,6 +15,11 @@ Item {
         source: "qrc:/voice/card_move.wav"
     }
 
+    Audio {
+        id: ikenieMusic
+        source: "qrc:/voice/ikenie.wav"
+    }
+
     property int isdn
     property int index
     property var judgeResult: []
@@ -33,8 +38,32 @@ Item {
             if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
                 if(Data.findBlueFrontIndex() !== -1) {
                     if(Data.blueSummonEnable) {
-                        summonButton.visible = true;
-                        setButton.visible = true;
+                        var card_level = Number(Data.boardCards[card_item.isdn]["level"]);
+                        if(card_level < 5) {
+                            summonButton.visible = true;
+                            setButton.visible = true;
+                        } else {
+                            var blueFrontMonsterNumber = Data.getBlueFrontMonsterNumber();
+                            if(card_level < 7 && blueFrontMonsterNumber > 0){
+                                summonButton.visible = true;
+                                setButton.visible = true;
+                                Data.tributeNumber = 1
+                            } else if(card_level < 9 && blueFrontMonsterNumber > 1){
+                                summonButton.visible = true;
+                                setButton.visible = true;
+                                Data.tributeNumber = 2
+                            } else if(card_level < 11 && blueFrontMonsterNumber > 2){
+                                summonButton.visible = true;
+                                setButton.visible = true;
+                                Data.tributeNumber = 3
+                            } else {
+                                tipInfo.source = "qrc:/image/tip/tip1.png"
+                                tipInfo.visible = true
+                            }
+                        }
+                    } else {
+                        tipInfo.source = "qrc:/image/tip/tip3.png"
+                        tipInfo.visible = true
                     }
                 }
             }
@@ -43,14 +72,12 @@ Item {
 
     function checkFront() {
         if(card_item.state === "blueVerticalFaceupFront") {
-            if(Data.boardObject.state === "blueMain1Phase" ||
-                    Data.boardObject.state === "blueMain2Phase") {
+            if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
                 //
             } else if(Data.boardObject.state === "blueBattlePhase") {
-                Data.battleFromIndex = card_item.index;
+                attackButton.visible = true
             }
-        } else if(card_item.state === "redVerticalFaceupFront" ||
-                  card_item.state === "redHorizontalFacedownFront") {
+        } else if(card_item.state === "redVerticalFaceupFront" || card_item.state === "redHorizontalFacedownFront") {
             if(Data.boardObject.state === "blueBattlePhase") {
                 if(Data.battleFromIndex !== -1) {
                     Data.battleToIndex = card_item.index;
@@ -106,16 +133,31 @@ Item {
             Data.sendInfoImage(card_item.isdn);
             Data.oldSelectCard = card_item;
 
-            checkHand();
-            checkFront();
+            if(Data.blueTributeSummon === true) {
+                if(card_item.state === "blueVerticalFaceupFront" ||
+                        card_item.state === "blueVerticalFacedownFront" ||
+                        card_item.state === "blueHorizontalFaceupFront" ||
+                        card_item.state === "blueHorizontalFacedownFront") {
+                    tributeButton.visible = true;
+                }
+            } else {
+                checkHand();
+                checkFront();
+            }
 
         } else {
             highlight_image.visible = false;
+
+            tipInfo.visible = false;
+
+            summonButton.visible = false;
+            setButton.visible = false;
+            specialButton.visible = false;
+            tributeButton.visible = false;
+            attackButton.visible = false;
+
             if(card_item.state === "blueHandArea") {
                 unhighlightAnimation1.start();
-                summonButton.visible = false;
-                setButton.visible = false;
-                specialButton.visible = false;
             } else if(card_item.state === "redHandArea") {
                 unhighlightAnimation2.start();
             }
@@ -148,9 +190,50 @@ Item {
     }
 
     Image {
+        id: effect1
+        width: 90
+        height: 130
+        clip: true
+        anchors.horizontalCenter: card_item.horizontalCenter
+        anchors.verticalCenter: card_item.verticalCenter
+        source: frontItem.source
+        visible: false
+        Image {
+            id: effectRainbow
+            anchors.fill: effect1
+            width: 138
+            height: 130
+            source: "qrc:/image/eff_rainbow.png"
+            visible: false
+        }
+    }
+
+    Image {
+        id: effect2
+        width: 142
+        height: 140
+        opacity: 0.0
+        anchors.horizontalCenter: card_item.horizontalCenter
+        anchors.verticalCenter: card_item.verticalCenter
+        source: "qrc:/image/eff_set_b.png"
+        visible: false
+    }
+
+    Image {
         id: sword
         anchors.fill: card_item
         source: "qrc:/image/sword.png"
+        visible: false
+    }
+
+    Image {
+        id: tipInfo
+        width: 290
+        height: 72
+        anchors.horizontalCenter: card_item.horizontalCenter
+        anchors.bottom: card_item.top
+        anchors.topMargin: 5
+        source: "qrc:/image/tip/tip1.png"
         visible: false
     }
 
@@ -190,18 +273,31 @@ Item {
         font.bold: true
         visible: false
         onClicked: {
+            card_item.highlight = false;
             var place2 = Data.findBlueFrontIndex();
             if(place2 !== -1) {
-                var old_place2 = card_item.index;
-                Data.blueHandCards.splice(old_place2, 1);
-                Data.blueFrontCards[place2] = card_item;
-                card_item.index = place2;
-                card_item.z = 2;
-                Data.blueSummonEnable = false;
-                highlight_image.visible = false;
-                delete Data.oldSelectCard;
-                card_item.state = "blueVerticalFaceupFront";
-                //                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
+                if(Data.tributeNumber === 0) {
+                    var old_place2 = card_item.index;
+                    Data.blueHandCards.splice(old_place2, 1);
+                    Data.blueFrontCards[place2] = card_item;
+                    card_item.index = place2;
+                    card_item.z = 2;
+                    Data.blueSummonEnable = false;
+                    card_item.state = "blueVerticalFaceupFront";
+                    //Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
+                } else if(Data.tributeNumber === 1) {
+                    Data.tributeCard = card_item;
+                    Data.boardDialog.source = "qrc:/image/dialog/dialog2.png"
+                    Data.boardDialog.visible = true
+                } else if(Data.tributeNumber === 2) {
+                    Data.tributeCard = card_item;
+                    Data.boardDialog.source = "qrc:/image/dialog/dialog3.png"
+                    Data.boardDialog.visible = true
+                } else if(Data.tributeNumber === 3) {
+                    Data.tributeCard = card_item;
+                    Data.boardDialog.source = "qrc:/image/dialog/dialog4.png"
+                    Data.boardDialog.visible = true
+                }
             }
         }
     }
@@ -217,6 +313,7 @@ Item {
         font.bold: true
         visible: false
         onClicked: {
+            card_item.highlight = false
             var place = Data.findBlueFrontIndex();
             if(place !== -1) {
                 var old_place = card_item.index;
@@ -225,10 +322,25 @@ Item {
                 card_item.index = place;
                 card_item.z = 2;
                 Data.blueSummonEnable = false;
-                highlight_image.visible = false;
                 card_item.state = "blueHorizontalFacedownFront";
-                //                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+                //Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
             }
+        }
+    }
+
+    Button {
+        id: tributeButton
+        y: -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 180
+        height: 60
+        text: "献祭"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            card_item.highlight = false
+            card_item.state = "blueGrave";
         }
     }
 
@@ -243,6 +355,7 @@ Item {
         font.bold: true
         visible: false
         onClicked: {
+            card_item.highlight = false
             var place3 = Data.findBlueFrontIndex();
             if(place3 !== -1) {
                 var old_place3 = card_item.index;
@@ -251,8 +364,7 @@ Item {
                 card_item.index = place3;
                 card_item.z = 2;
                 card_item.state = "blueVerticalFaceupFront";
-                highlight_image.visible = false;
-                //                Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
+                //Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
             }
         }
     }
@@ -268,17 +380,12 @@ Item {
         font.bold: true
         visible: false
         onClicked: {
-            var place = Data.findBlueFrontIndex();
-            if(place !== -1) {
-                var old_place = card_item.index;
-                Data.blueHandCards.splice(old_place, 1);
-                Data.blueFrontCards[place] = card_item;
-                card_item.index = place;
-                card_item.z = 2;
-                Data.blueSummonEnable = false;
-                highlight_image.visible = false;
-                card_item.state = "blueHorizontalFacedownFront";
-                //                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+            card_item.highlight = false
+            Data.battleFromIndex = card_item.index;
+            if(Data.getRedFrontMonsterNumber() === 0) {
+                Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
+                Data.blueSword.visible = true;
+                Data.blueSwordAnimationObject.start();
             }
         }
     }
@@ -389,9 +496,6 @@ Item {
                         backItem.source = "qrc:/image/area/null.png"
                         card_item.width = 90
                         card_item.height = 130
-                        summonButton.visible = false;
-                        setButton.visible = false;
-                        specialButton.visible = false;
                     }
                 }
                 ParallelAnimation {
@@ -407,6 +511,35 @@ Item {
                         label.visible = true
                     }
                 }
+                SequentialAnimation {
+                    ScriptAction {
+                        script: {
+                            effectRainbow.opacity = 0
+                            effectRainbow.visible = false
+                            effect1.opacity = 0.75
+                            effect1.visible = true
+                        }
+                    }
+                    NumberAnimation { target: effect1; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
+                    ScriptAction {
+                        script: {
+                            effectRainbow.visible = true
+                        }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: effectRainbow; properties: "opacity"; from: 0; to: 1; duration: 400 }
+                        NumberAnimation { target: effectRainbow; properties: "x"; from: -48; to: -24; duration: 400 }
+                    }
+                    ParallelAnimation {
+                        NumberAnimation { target: effectRainbow; properties: "opacity"; from: 1; to: 0; duration: 400 }
+                        NumberAnimation { target: effectRainbow; properties: "x"; from: -24; to: 0; duration: 400 }
+                    }
+                    ScriptAction {
+                        script: {
+                            effect1.visible = false
+                        }
+                    }
+                }
             }
         },
         Transition {
@@ -420,9 +553,6 @@ Item {
                         backItem.source = "qrc:/image/area/null.png"
                         card_item.width = 90
                         card_item.height = 130
-                        summonButton.visible = false;
-                        setButton.visible = false;
-                        specialButton.visible = false;
                     }
                 }
                 ParallelAnimation {
@@ -538,57 +668,51 @@ Item {
             }
         },
         Transition {
-            from: "blueVerticalFaceupFront"
             to: "blueGrave"
             SequentialAnimation {
+                ScriptAction { script: { effect2.visible = true; ikenieMusic.play(); } }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 1334; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 594; duration: 200 }
+                    NumberAnimation { target: effect2; property: "opacity"; from: 0.0; to: 1.0; duration: 200 }
+                    NumberAnimation { target: effect2; property: "scale"; from: 0.1; to: 1.0; duration: 200 }
+                    NumberAnimation { target: effect2; property: "rotation"; from: 0; to: 360; duration: 1600 }
                 }
-                ScriptAction {
-                    script: {
-                        label.visible = false
-                        card_item.z = 5+Data.blueGraveCards.length
+                ParallelAnimation {
+                    NumberAnimation { target: effect2; property: "scale"; from: 1.0; to: 2.0; duration: 200 }
+                    NumberAnimation { target: effect2; property: "opacity"; from: 1.0; to: 0.0; duration: 200 }
+                }
+                SequentialAnimation {
+                    ScriptAction { script: { card_item.z = 5+Data.blueGraveCards.length } }
+                    ParallelAnimation {
+                        NumberAnimation { target: card_item; properties: "x"; from: x; to: 1334; duration: 200 }
+                        NumberAnimation { target: card_item; properties: "y"; from: y; to: 594; duration: 200 }
+                        NumberAnimation { target: rotationStand; to: 0; property: "angle"; duration: 200 }
+                        NumberAnimation { target: rotationFace; to: 0; property: "angle"; duration: 200 }
+                    }
+                    ScriptAction {
+                        script: {
+                            label.visible = false
+                            effect2.visible = false
+                            delete Data.blueFrontCards[card_item.index];
+                            Data.tributeNumber = Data.tributeNumber - 1;
+                            if(Data.tributeNumber === 0) {
+                                Data.blueTributeSummon = false;
+                                var place2 = Data.findBlueFrontIndex();
+                                var old_place2 = Data.tributeCard.index;
+                                Data.blueHandCards.splice(old_place2, 1);
+                                Data.blueFrontCards[place2] = Data.tributeCard;
+                                Data.tributeCard.index = place2;
+                                Data.tributeCard.z = 5+Data.blueGraveCards.length
+                                Data.tributeCard.highlight = false;
+                                Data.blueSummonEnable = false;
+                                Data.tributeCard.state = "blueVerticalFaceupFront";
+                            }
+                        }
                     }
                 }
             }
+
         },
         Transition {
-            from: "blueHorizontalFaceupFront"
-            to: "blueGrave"
-            SequentialAnimation {
-                ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 1334; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 594; duration: 200 }
-                    NumberAnimation { target: rotationStand; to: 0; property: "angle"; duration: 200 }
-                }
-                ScriptAction {
-                    script: {
-                        label.visible = false
-                        card_item.z = 5+Data.blueGraveCards.length
-                    }
-                }
-            }
-        },
-        Transition {
-            from: "redVerticalFaceupFront"
-            to: "redGrave"
-            SequentialAnimation {
-                ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 360; duration: 200 }
-                    NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
-                }
-                ScriptAction {
-                    script: {
-                        label.visible = false
-                        card_item.z = 5+Data.redGraveCards.length
-                    }
-                }
-            }
-        },
-        Transition {
-            from: "redHorizontalFaceupFront"
             to: "redGrave"
             SequentialAnimation {
                 ParallelAnimation {

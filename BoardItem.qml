@@ -1,6 +1,5 @@
 import QtQuick 2.3
 import "data.js" as Data
-import QtQuick.Dialogs 1.2
 //import QtWebSockets 1.0
 import QtQuick.Controls 2.14
 import QtMultimedia 5.14
@@ -17,6 +16,7 @@ Image {
     Component.onCompleted: {
         Data.componentObject = Component;
         Data.boardObject = board;
+        Data.boardDialog = dialogImage;
 //        Data.boardSocket = socket;
         Data.infoImageObject = infoImage;
         Data.infoTextObject = infoText;
@@ -51,6 +51,16 @@ Image {
         source: "qrc:/voice/turn_change.wav"
     }
 
+    Audio {
+        id: attackMusic
+        source: "qrc:/voice/attack.wav"
+    }
+
+    Audio {
+        id: damageMusic
+        source: "qrc:/voice/damage.wav"
+    }
+
     MouseArea {
         anchors.fill: board
         onClicked: {
@@ -61,54 +71,9 @@ Image {
     }
 
     Image {
-        id: lp_blue_wan
-        x: 102
-        y: 0
-        width: 47
-        height: 61
-        source: "qrc:/image/LP/NA.png"
-    }
-
-    Image {
-        id: lp_blue_qian
-        x: 149
-        y: 0
-        width: 47
-        height: 61
-        source: "qrc:/image/LP/LP8.png"
-    }
-
-    Image {
-        id: lp_blue_bai
-        x: 196
-        y: 0
-        width: 47
-        height: 61
-        source: "qrc:/image/LP/LP0.png"
-    }
-
-    Image {
-        id: lp_blue_shi
-        x: 243
-        y: 0
-        width: 47
-        height: 61
-        source: "qrc:/image/LP/LP0.png"
-    }
-
-    Image {
-        id: lp_blue_ge
-        x: 290
-        y: 0
-        width: 47
-        height: 61
-        source: "qrc:/image/LP/LP0.png"
-    }
-
-    Image {
         id: lp_red_wan
         x: 102
-        y: 950
+        y: 0
         width: 47
         height: 61
         source: "qrc:/image/LP/NA.png"
@@ -117,7 +82,7 @@ Image {
     Image {
         id: lp_red_qian
         x: 149
-        y: 950
+        y: 0
         width: 47
         height: 61
         source: "qrc:/image/LP/LP8.png"
@@ -126,7 +91,7 @@ Image {
     Image {
         id: lp_red_bai
         x: 196
-        y: 950
+        y: 0
         width: 47
         height: 61
         source: "qrc:/image/LP/LP0.png"
@@ -135,7 +100,7 @@ Image {
     Image {
         id: lp_red_shi
         x: 243
-        y: 950
+        y: 0
         width: 47
         height: 61
         source: "qrc:/image/LP/LP0.png"
@@ -144,6 +109,33 @@ Image {
     Image {
         id: lp_red_ge
         x: 290
+        y: 0
+        width: 47
+        height: 61
+        source: "qrc:/image/LP/LP0.png"
+    }
+
+    Image {
+        id: lp_blue_wan
+        x: 102
+        y: 950
+        width: 47
+        height: 61
+        source: "qrc:/image/LP/NA.png"
+    }
+
+    Image {
+        id: lp_blue_qian
+        x: 149
+        y: 950
+        width: 47
+        height: 61
+        source: "qrc:/image/LP/LP8.png"
+    }
+
+    Image {
+        id: lp_blue_bai
+        x: 196
         y: 950
         width: 47
         height: 61
@@ -151,14 +143,100 @@ Image {
     }
 
     Image {
-        id: dialog1
+        id: lp_blue_shi
+        x: 243
+        y: 950
+        width: 47
+        height: 61
+        source: "qrc:/image/LP/LP0.png"
+    }
+
+    Image {
+        id: lp_blue_ge
+        x: 290
+        y: 950
+        width: 47
+        height: 61
+        source: "qrc:/image/LP/LP0.png"
+    }
+
+    Image {
+        id: damage_red_minus
+        x: 800
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damageA.png"
         visible: false
+    }
+
+    Image {
+        id: damage_red_wan
+        x: 829
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damageNA.png"
+        visible: false
+    }
+
+    Image {
+        id: damage_red_qian
+        x: 858
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damage1.png"
+        visible: false
+    }
+
+    Image {
+        id: damage_red_bai
+        x: 887
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damage9.png"
+        visible: false
+    }
+
+    Image {
+        id: damage_red_shi
+        x: 916
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damage0.png"
+        visible: false
+    }
+
+    Image {
+        id: damage_red_ge
+        x: 945
+        y: 200
+        width: 29
+        height: 72
+        source: "qrc:/image/LP/damage0.png"
+        visible: false
+    }
+
+    Image {
+        id: dialogImage
         x: 560
         y: 360
         z: 99
         width: 742
         height: 324
-        source: "qrc:/image/dialog1.png"
+        source: "qrc:/image/dialog/dialog3.png"
+        visible: false
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                dialogImage.visible = false
+                Data.blueTributeSummon = true
+            }
+        }
     }
 
     Rectangle {
@@ -297,7 +375,7 @@ Image {
 
     Image {
         id: battlePhaseImage
-        x: 779
+        x: 649
         y: 498
         width: 475
         height: 79
@@ -307,7 +385,7 @@ Image {
 
     Image {
         id: otherPhaseImage
-        x: 800
+        x: 770
         y: 498
         width: 430
         height: 79
@@ -346,7 +424,7 @@ Image {
         id: blueSword
         x: 630
         y: 571
-        z: 3
+        z: 9
         width: 90
         height: 130
         source: "qrc:/image/sword.png"
@@ -356,86 +434,125 @@ Image {
 
     SequentialAnimation {
         id: blueSwordAnimation
-        NumberAnimation {
-            target: blueSword
-            properties: "rotation";
-            from: 0
-            to: 60
-            duration: 200
-        }
-        PauseAnimation {
-            duration: 1000
-        }
+        NumberAnimation { target: blueSword; properties: "rotation"; from: 0; to: 26; duration: 200 }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { attackMusic.play() } }
         ParallelAnimation {
-            NumberAnimation {
-                target: blueSword
-                properties: "x";
-                from: 630
-                to: 630+4*140
-                duration: 200
-            }
-            NumberAnimation {
-                target: blueSword
-                properties: "y";
-                from: 571
-                to: 383
-                duration: 200
-            }
+            NumberAnimation { target: blueSword; properties: "x"; from: 630; to: 865; duration: 200 }
+            NumberAnimation { target: blueSword; properties: "y"; from: 571; to: 85; duration: 200 }
         }
         ScriptAction {
             script: {
                 blueSword.visible = false;
                 blueSword.rotation = 0;
+                blueSword.x = 630;
+                blueSword.y = 571;
             }
         }
-        PauseAnimation {
-            duration: 1000
-        }
-        ScriptAction {
-            script: {
-                if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFacedownFront") {
-                    Data.redFrontCards[Data.battleToIndex].state = "redHorizontalFaceupFront";
-                }
-            }
-        }
-        PauseAnimation {
-            duration: 1000
-        }
+        PauseAnimation { duration: 1000 }
+//        ScriptAction {
+//            script: {
+//                if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFacedownFront") {
+//                    Data.redFrontCards[Data.battleToIndex].state = "redHorizontalFaceupFront";
+//                }
+//            }
+//        }
+//        PauseAnimation {
+//            duration: 1000
+//        }
+//        ScriptAction {
+//            script: {
+//                var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
+//                var isdnTo = Data.redFrontCards[Data.battleToIndex].isdn;
+//                if(Data.redFrontCards[Data.battleToIndex].state === "redVerticalFaceupFront") {
+//                    if(Number(Data.boardCards[isdnFrom]["atk"]) >= Number(Data.boardCards[isdnTo]["atk"])) {
+//                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
+//                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
+//                        delete Data.redFrontCards[Data.battleToIndex];
+//                        Data.redLP -= Data.boardCards[isdnFrom]["atk"] - Data.boardCards[isdnTo]["atk"];
+//                        console.log("Data.redLP: " + Data.redLP);
+//                    }
+//                    if(Number(Data.boardCards[isdnFrom]["atk"]) <= Number(Data.boardCards[isdnTo]["atk"])) {
+//                        Data.blueFrontCards[Data.battleFromIndex].state = "blueGrave";
+//                        Data.blueGraveCards.push(Data.blueFrontCards[Data.battleFromIndex]);
+//                        delete Data.blueFrontCards[Data.battleFromIndex];
+//                        Data.blueLP -= Data.boardCards[isdnTo]["atk"] - Data.boardCards[isdnFrom]["atk"];
+//                        console.log("Data.blueLP: " + Data.blueLP);
+//                    }
+//                } else if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFaceupFront") {
+//                    if(Number(Data.boardCards[isdnFrom]["atk"]) > Number(Data.boardCards[isdnTo]["def"])) {
+//                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
+//                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
+//                        delete Data.redFrontCards[Data.battleToIndex];
+//                    } else if(Number(Data.boardCards[isdnTo]["def"]) > Number(Data.boardCards[isdnFrom]["atk"])) {
+//                        Data.blueLP -= Data.boardCards[isdnTo]["def"] - Data.boardCards[isdnFrom]["atk"];
+//                        console.log("Data.blueLP: " + Data.blueLP);
+//                    }
+//                }
+//            }
+//        }
         ScriptAction {
             script: {
                 var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
-                var isdnTo = Data.redFrontCards[Data.battleToIndex].isdn;
-                if(Data.redFrontCards[Data.battleToIndex].state === "redVerticalFaceupFront") {
-                    if(Number(Data.boardCards[isdnFrom]["atk"]) >= Number(Data.boardCards[isdnTo]["atk"])) {
-                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
-                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
-                        delete Data.redFrontCards[Data.battleToIndex];
-                        Data.redLP -= Data.boardCards[isdnFrom]["atk"] - Data.boardCards[isdnTo]["atk"];
-                        console.log("Data.redLP: " + Data.redLP);
-                    }
-                    if(Number(Data.boardCards[isdnFrom]["atk"]) <= Number(Data.boardCards[isdnTo]["atk"])) {
-                        Data.blueFrontCards[Data.battleFromIndex].state = "blueGrave";
-                        Data.blueGraveCards.push(Data.blueFrontCards[Data.battleFromIndex]);
-                        delete Data.blueFrontCards[Data.battleFromIndex];
-                        Data.blueLP -= Data.boardCards[isdnTo]["atk"] - Data.boardCards[isdnFrom]["atk"];
-                        console.log("Data.blueLP: " + Data.blueLP);
-                    }
-                } else if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFaceupFront") {
-                    if(Number(Data.boardCards[isdnFrom]["atk"]) > Number(Data.boardCards[isdnTo]["def"])) {
-                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
-                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
-                        delete Data.redFrontCards[Data.battleToIndex];
-                    } else if(Number(Data.boardCards[isdnTo]["def"]) > Number(Data.boardCards[isdnFrom]["atk"])) {
-                        Data.blueLP -= Data.boardCards[isdnTo]["def"] - Data.boardCards[isdnFrom]["atk"];
-                        console.log("Data.blueLP: " + Data.blueLP);
-                    }
-                }
-            }
-        }
-        ScriptAction {
-            script: {
+                Data.redLP -= Number(Data.boardCards[isdnFrom]["atk"]);
                 Data.battleFromIndex = -1;
                 Data.battleToIndex = -1;
+                damageMusic.play();
+
+                damage_red_minus.visible = true;
+                damage_red_qian.visible = true;
+                damage_red_bai.visible = true;
+                damage_red_shi.visible = true;
+                damage_red_ge.visible = true;
+            }
+        }
+        PauseAnimation { duration: 200 }
+        ScriptAction {
+            script: {
+                damage_red_bai.source = "qrc:/image/LP/damage5.png";
+                lp_red_qian.source = "qrc:/image/LP/LP7.png"
+                lp_red_bai.source = "qrc:/image/LP/LP6.png"
+            }
+        }
+        PauseAnimation { duration: 200 }
+        ScriptAction {
+            script: {
+                damage_red_bai.source = "qrc:/image/LP/damage1.png";
+                lp_red_bai.source = "qrc:/image/LP/LP2.png"
+            }
+        }
+        PauseAnimation { duration: 200 }
+        ScriptAction {
+            script: {
+                damage_red_qian.source = "qrc:/image/LP/damageNA.png";
+                damage_red_bai.source = "qrc:/image/LP/damage7.png";
+                lp_red_qian.source = "qrc:/image/LP/LP6.png"
+                lp_red_bai.source = "qrc:/image/LP/LP8.png"
+            }
+        }
+        PauseAnimation { duration: 200 }
+        ScriptAction {
+            script: {
+                damage_red_bai.source = "qrc:/image/LP/damage3.png";
+                lp_red_bai.source = "qrc:/image/LP/LP4.png"
+            }
+        }
+        PauseAnimation { duration: 150 }
+        ScriptAction {
+            script: {
+                damage_red_minus.visible = false;
+                damage_red_qian.visible = false;
+                damage_red_bai.visible = false;
+                damage_red_shi.visible = false;
+                damage_red_ge.visible = false;
+                lp_red_bai.source = "qrc:/image/LP/LP1.png"
+            }
+        }
+
+        PauseAnimation { duration: 200 }
+        ScriptAction {
+            script: {
+
             }
         }
     }
@@ -534,6 +651,8 @@ Image {
         }
         SequentialAnimation {
             PauseAnimation { duration: 800 }
+            ScriptAction { script: { Data.blue_draw_card(); } }
+            PauseAnimation { duration: 300 }
             ScriptAction {
                 script: {
                     Data.blueSummonEnable = true;
@@ -712,6 +831,8 @@ Image {
         }
         SequentialAnimation {
             PauseAnimation { duration: 800 }
+            ScriptAction { script: { Data.red_draw_card(); } }
+            PauseAnimation { duration: 300 }
             ScriptAction {
                 script: {
                     state = "redStandbyPhase";
@@ -893,8 +1014,6 @@ Image {
                 ScriptAction { script: { Data.red_draw_card(); } }
                 PauseAnimation { duration: 300 }
                 ScriptAction { script: { ani_blue_DP.start(); } }
-                PauseAnimation { duration: 300 }
-                ScriptAction { script: { Data.blue_draw_card(); } }
             }
         },
         Transition {

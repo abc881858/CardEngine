@@ -1,6 +1,5 @@
 import QtQuick 2.3
 import "data.js" as Data
-import QtQuick.Dialogs 1.2
 //import QtWebSockets 1.0
 import QtQuick.Controls 2.14
 import QtMultimedia 5.14

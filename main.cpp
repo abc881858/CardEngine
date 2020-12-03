@@ -1,12 +1,12 @@
 #include <QGuiApplication>
 #include <QQmlApplicationEngine>
 #include <QQmlContext>
-//#include "qmlandroidorientation.h"
+#include "qmlandroidorientation.h"
 
 int main(int argc, char *argv[])
 {
-//    QmlAndroidOrientation orientation;
-//    orientation.setOrientationLandscape();
+    QmlAndroidOrientation orientation;
+    orientation.setOrientationLandscape();
 
     QGuiApplication app(argc, argv);
 

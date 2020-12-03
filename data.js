@@ -16,11 +16,12 @@ var turnNumber = 0
 var blueLP = 8000
 var redLP = 8000
 
-var blueDeck = [5,6,1,2,3,4]
-var redDeck = [5,6,1,2,3,4]
+var blueDeck = [5,6,1,2,3,4,6,6,6]
+var redDeck = [5,6,1,2,3,4,6,6,6]
 
 var componentObject;
 var boardObject;
+var boardDialog;
 var infoImageObject;
 var infoTextObject;
 var blueSwordAnimationObject;
@@ -45,7 +46,11 @@ var redSword;
 
 var oldSelectCard;
 
+var blueTributeSummon = false;
 var blueSummonEnable = true;
+
+var tributeNumber = 0;
+var tributeCard;
 
 function sendInfoImage(isdn) {
     infoImageObject.source = "qrc:/image/info/" + boardCards[isdn]["name"] +".png";
@@ -116,6 +121,26 @@ function findBlueFrontIndex() {
     if(blueFrontCards[3] === undefined) return 3;
     if(blueFrontCards[4] === undefined) return 4;
     return -1;
+}
+
+function getBlueFrontMonsterNumber() {
+    var num = 0;
+    if(blueFrontCards[0] !== undefined) ++num;
+    if(blueFrontCards[1] !== undefined) ++num;
+    if(blueFrontCards[2] !== undefined) ++num;
+    if(blueFrontCards[3] !== undefined) ++num;
+    if(blueFrontCards[4] !== undefined) ++num;
+    return num;
+}
+
+function getRedFrontMonsterNumber() {
+    var num = 0;
+    if(redFrontCards[0] !== undefined) ++num;
+    if(redFrontCards[1] !== undefined) ++num;
+    if(redFrontCards[2] !== undefined) ++num;
+    if(redFrontCards[3] !== undefined) ++num;
+    if(redFrontCards[4] !== undefined) ++num;
+    return num;
 }
 
 function findBlueBackIndex() {
