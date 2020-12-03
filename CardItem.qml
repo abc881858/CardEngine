@@ -2,6 +2,7 @@ import QtQuick 2.0
 import QtGraphicalEffects 1.12
 import "data.js" as Data
 import QtQuick.Controls 2.14
+import QtMultimedia 5.14
 
 Item {
     id: card_item
@@ -9,20 +10,63 @@ Item {
     height: 130
     state: "none"
 
+    Audio {
+        id: card_moveMusic
+        source: "qrc:/voice/card_move.wav"
+    }
+
     property int isdn
     property int index
     property var judgeResult: []
     property int judgeIndex: 0
 
     property alias swordVisible: sword.visible
-    property alias highlightVisible: highlight_image.visible
-    property alias highlightRotation: highlight_image.rotation
-    property alias highlightSource: highlight_image.source
 
     NumberAnimation { id: highlightAnimation1; target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
     NumberAnimation { id: unhighlightAnimation1; target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
     NumberAnimation { id: highlightAnimation2; target: card_item; properties: "y"; from: -128; to: -65; duration: 200 }
     NumberAnimation { id: unhighlightAnimation2; target: card_item; properties: "y"; from: -65; to: -128; duration: 200 }
+
+    function checkHand() {
+        if(card_item.state === "blueHandArea") {
+            highlightAnimation1.start();
+            if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
+                if(Data.findBlueFrontIndex() !== -1) {
+                    if(Data.blueSummonEnable) {
+                        summonButton.visible = true;
+                        setButton.visible = true;
+                    }
+                }
+            }
+        }
+    }
+
+    function checkFront() {
+        if(card_item.state === "blueVerticalFaceupFront") {
+            if(Data.boardObject.state === "blueMain1Phase" ||
+                    Data.boardObject.state === "blueMain2Phase") {
+                //
+            } else if(Data.boardObject.state === "blueBattlePhase") {
+                Data.battleFromIndex = card_item.index;
+            }
+        } else if(card_item.state === "redVerticalFaceupFront" ||
+                  card_item.state === "redHorizontalFacedownFront") {
+            if(Data.boardObject.state === "blueBattlePhase") {
+                if(Data.battleFromIndex !== -1) {
+                    Data.battleToIndex = card_item.index;
+//                    var angle0 = Math.atan((mouseX-blueSword0.x-25*1.8)/(blueSword0.y+36*1.8-mouseY))
+//                    if((blueSword0.y+36*1.8) < mouseY) {
+//                        blueSword0.rotation = angle0/3.1415*180 + 180
+//                    } else {
+//                        blueSword0.rotation = angle0/3.1415*180
+//                    }
+                    Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
+                    Data.blueSword.visible = true;
+                    Data.blueSwordAnimationObject.start();
+                }
+            }
+        }
+    }
 
     property bool highlight: false
     onHighlightChanged: {
@@ -31,20 +75,6 @@ Item {
                 highlight_image.source = "qrc:/image/chooseBlue.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
-                highlightAnimation1.start();
-                if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
-                    if(Data.findBlueFrontIndex() !== -1) {
-                        if(Data.blueSummonEnable) {
-                            summonButton.visible = true;
-                            setButton.visible = true;
-                        }
-                    }
-                }
-            } else if(card_item.state === "redHandArea") {
-                highlight_image.source = "qrc:/image/chooseRed.png";
-                highlight_image.rotation = 0;
-                highlight_image.visible = true;
-                highlightAnimation2.start();
             } else if(card_item.state === "blueVerticalFaceupFront" ||
                       card_item.state === "blueVerticalFacedownFront" ||
                       card_item.state === "blueGrave") {
@@ -56,6 +86,11 @@ Item {
                 highlight_image.source = "qrc:/image/selectBlue.png";
                 highlight_image.rotation = 90;
                 highlight_image.visible = true;
+            } else if(card_item.state === "redHandArea") {
+                highlight_image.source = "qrc:/image/chooseRed.png";
+                highlight_image.rotation = 0;
+                highlight_image.visible = true;
+                highlightAnimation2.start();
             } else if(card_item.state === "redVerticalFaceupFront" ||
                       card_item.state === "redVerticalFacedownFront" ||
                       card_item.state === "redGrave") {
@@ -70,6 +105,10 @@ Item {
             }
             Data.sendInfoImage(card_item.isdn);
             Data.oldSelectCard = card_item;
+
+            checkHand();
+            checkFront();
+
         } else {
             highlight_image.visible = false;
             if(card_item.state === "blueHandArea") {
@@ -136,6 +175,7 @@ Item {
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
         visible: false
+        readOnly: true
         text: Data.boardCards[isdn]["atk"] + "/" + Data.boardCards[isdn]["def"];
     }
 
@@ -158,10 +198,10 @@ Item {
                 card_item.index = place2;
                 card_item.z = 2;
                 Data.blueSummonEnable = false;
-                card_item.highlightVisible = false;
+                highlight_image.visible = false;
                 delete Data.oldSelectCard;
                 card_item.state = "blueVerticalFaceupFront";
-//                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
+                //                Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
             }
         }
     }
@@ -185,9 +225,9 @@ Item {
                 card_item.index = place;
                 card_item.z = 2;
                 Data.blueSummonEnable = false;
-                card_item.highlightVisible = false;
+                highlight_image.visible = false;
                 card_item.state = "blueHorizontalFacedownFront";
-//                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+                //                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
             }
         }
     }
@@ -211,8 +251,8 @@ Item {
                 card_item.index = place3;
                 card_item.z = 2;
                 card_item.state = "blueVerticalFaceupFront";
-                card_item.highlightVisible = false;
-//                Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
+                highlight_image.visible = false;
+                //                Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
             }
         }
     }
@@ -236,9 +276,9 @@ Item {
                 card_item.index = place;
                 card_item.z = 2;
                 Data.blueSummonEnable = false;
-                card_item.highlightVisible = false;
+                highlight_image.visible = false;
                 card_item.state = "blueHorizontalFacedownFront";
-//                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
+                //                Data.boardSocket.sendTextMessage("setFront#"+old_place+"@"+place3);
             }
         }
     }
@@ -276,9 +316,6 @@ Item {
         },
         State {
             name: "redHandArea"
-        },
-        State {
-            name: "redHandAreaHighlight"
         },
         State {
             name: "redVerticalFaceupFront"
@@ -321,6 +358,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        card_moveMusic.play();
                         frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/hand/null.png"
                         card_item.width = 180
@@ -328,10 +366,15 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: 1318; to: x; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: 794; to: 952; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
-                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: 1318; to: x; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: 794; to: 952; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 270 }
+                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 270 }
+                }
+                ScriptAction {
+                    script: {
+                        card_moveMusic.stop();
+                    }
                 }
             }
         },
@@ -341,6 +384,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        card_moveMusic.play();
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
                         card_item.width = 90
@@ -351,12 +395,13 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*card_item.index; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 571; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*card_item.index; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 571; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 270 }
                 }
                 ScriptAction {
                     script: {
+                        card_moveMusic.stop();
                         Data.adjustBlueHand();
                         label.anchors.top = card_image.bottom
                         label.visible = true
@@ -370,6 +415,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        card_moveMusic.play();
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
                         card_item.width = 90
@@ -380,14 +426,15 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*card_item.index; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 585; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
-                    NumberAnimation { target: rotationFace; from: 0; to: 180; property: "angle"; duration: 200 }
-                    NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*card_item.index; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 585; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 270 }
+                    NumberAnimation { target: rotationFace; from: 0; to: 180; property: "angle"; duration: 270 }
+                    NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 270 }
                 }
                 ScriptAction {
                     script: {
+                        card_moveMusic.stop();
                         Data.adjustBlueHand();
                     }
                 }
@@ -410,6 +457,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        card_moveMusic.play();
                         frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/hand/null2.png"
                         card_item.width = 180
@@ -417,24 +465,14 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: 486; to: x; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: 189; to: -128; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: 486; to: x; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: 189; to: -128; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 0.5; to: 1.0; duration: 270 }
                 }
             }
         },
         Transition {
             from: "redHandArea"
-            to: "redHandAreaHighlight"
-            NumberAnimation { target: card_item; properties: "y"; from: -128; to: -65; duration: 200 }
-        },
-        Transition {
-            from: "redHandAreaHighlight"
-            to: "redHandArea"
-            NumberAnimation { target: card_item; properties: "y"; from: -65; to: -128; duration: 200 }
-        },
-        Transition {
-            from: "redHandAreaHighlight"
             to: "redVerticalFaceupFront"
             SequentialAnimation {
                 ScriptAction {
@@ -446,11 +484,11 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*(4-card_item.index); duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
-                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
-                    NumberAnimation { target: rotationStand; from: 0; to: 180; property: "angle"; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 630+140*(4-card_item.index); duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 270 }
+                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 270 }
+                    NumberAnimation { target: rotationStand; from: 0; to: 180; property: "angle"; duration: 270 }
                 }
                 ScriptAction {
                     script: {
@@ -462,7 +500,7 @@ Item {
             }
         },
         Transition {
-            from: "redHandAreaHighlight"
+            from: "redHandArea"
             to: "redHorizontalFacedownFront"
             SequentialAnimation {
                 ScriptAction {
@@ -474,10 +512,10 @@ Item {
                     }
                 }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*(4-card_item.index); duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 200 }
-                    NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 626+140*(4-card_item.index); duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 383; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "scale"; from: 2.0; to: 1.0; duration: 270 }
+                    NumberAnimation { target: rotationStand; from: 0; to: -90; property: "angle"; duration: 270 }
                 }
                 ScriptAction {
                     script: {

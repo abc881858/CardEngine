@@ -3,6 +3,7 @@ import "data.js" as Data
 import QtQuick.Dialogs 1.2
 //import QtWebSockets 1.0
 import QtQuick.Controls 2.14
+import QtMultimedia 5.14
 
 Image {
     id: board
@@ -19,9 +20,7 @@ Image {
 //        Data.boardSocket = socket;
         Data.infoImageObject = infoImage;
         Data.infoTextObject = infoText;
-        Data.dialogText = textDialog;
-        Data.dialogObject = dialog;
-        Data.blueSword = blueSword0;
+        Data.blueSword = blueSword;
         Data.redSword = redSword0;
         Data.blueSwordAnimationObject = blueSwordAnimation;
     }
@@ -35,6 +34,22 @@ Image {
 //            Data.handleMessage(message.split("#")[0], message.split("#")[1]);
 //        }
 //    }
+
+    Audio {
+        id: backmusicMusic
+        loops: Audio.Infinite
+        source: "qrc:/voice/backmusic.mp3"
+    }
+
+    Audio {
+        id: battle_turnMusic
+        source: "qrc:/voice/battle_turn.wav"
+    }
+
+    Audio {
+        id: turn_changeMusic
+        source: "qrc:/voice/turn_change.wav"
+    }
 
     MouseArea {
         anchors.fill: board
@@ -135,19 +150,15 @@ Image {
         source: "qrc:/image/LP/LP0.png"
     }
 
-    Dialog {
-        id: dialog
+    Image {
+        id: dialog1
         visible: false
-        width: 720
-        height: 180
-        contentItem: Rectangle {
-            color: "lightskyblue"
-            Text {
-                id: textDialog
-                color: "navy"
-                anchors.centerIn: parent
-            }
-        }
+        x: 560
+        y: 360
+        z: 99
+        width: 742
+        height: 324
+        source: "qrc:/image/dialog1.png"
     }
 
     Rectangle {
@@ -285,6 +296,26 @@ Image {
     }
 
     Image {
+        id: battlePhaseImage
+        x: 779
+        y: 498
+        width: 475
+        height: 79
+        source: "qrc:/image/phase_name/e_ba_b1.png"
+        visible: false
+    }
+
+    Image {
+        id: otherPhaseImage
+        x: 800
+        y: 498
+        width: 430
+        height: 79
+        source: "qrc:/image/phase_name/e_dr_b.png"
+        visible: false
+    }
+
+    Image {
         id: infoImage
         x: 4
         y: 135
@@ -298,10 +329,12 @@ Image {
         id: infoScroll
         x: 14
         y: 666
-        width: 342
+        width: 332
         height: 265
         TextArea {
             id: infoText
+            width: 322
+            height: 265
             readOnly: true
             font.family: "Helvetica"
             font.pointSize: 10
@@ -310,7 +343,7 @@ Image {
     }
 
     Image {
-        id: blueSword0
+        id: blueSword
         x: 630
         y: 571
         z: 3
@@ -319,21 +352,30 @@ Image {
         source: "qrc:/image/sword.png"
         fillMode: Image.PreserveAspectFit
         visible: false
-        property int indexFrom: 0
-        property int indexTo: 0
     }
 
     SequentialAnimation {
         id: blueSwordAnimation
+        NumberAnimation {
+            target: blueSword
+            properties: "rotation";
+            from: 0
+            to: 60
+            duration: 200
+        }
+        PauseAnimation {
+            duration: 1000
+        }
         ParallelAnimation {
             NumberAnimation {
-                target: blueSword0
+                target: blueSword
                 properties: "x";
-                to: 630+(4-blueSword0.indexTo)*140
+                from: 630
+                to: 630+4*140
                 duration: 200
             }
             NumberAnimation {
-                target: blueSword0
+                target: blueSword
                 properties: "y";
                 from: 571
                 to: 383
@@ -342,11 +384,8 @@ Image {
         }
         ScriptAction {
             script: {
-                blueSword0.visible = false;
-                blueSword0.x = 630;
-                blueSword0.y = 571;
-                blueSword0.rotation = 0;
-                blueSword0.source = "qrc:/image/sword.png"
+                blueSword.visible = false;
+                blueSword.rotation = 0;
             }
         }
         PauseAnimation {
@@ -456,216 +495,483 @@ Image {
         }
     ]
 
+    function showSword() {
+        for(var index = 0; index<5; index++) {
+            if(Data.blueFrontCards[index] !== undefined) {
+                if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
+                    Data.blueFrontCards[index].swordVisible = true;
+                }
+            }
+        }
+    }
+
+    function hideSword() {
+        for(var index = 0; index<5; index++) {
+            if(Data.blueFrontCards[index] !== undefined) {
+                if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
+                    Data.blueFrontCards[index].swordVisible = false;
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_DP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_DP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_DP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_dr_b.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    Data.blueSummonEnable = true;
+                    state = "blueStandbyPhase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_SP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_SP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_SP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_st_b.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "blueMain1Phase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_M1
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_M1.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_M1.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_m1_b.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    /**/
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_BP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_BP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_BP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b1.png"; battlePhaseImage.visible = true; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b2.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b3.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b4.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b5.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b6.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b7.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_b8.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            ScriptAction {
+                script: {
+                    showSword();
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_M2
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_M2.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_M2.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_m2_b.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            ScriptAction {
+                script: {
+                    hideSword();
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_blue_EP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_EP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_EP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_en_b.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            ScriptAction {
+                script: {
+                    hideSword();
+                }
+            }
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "redDrawPhase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_DP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_DP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_DP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_dr_r.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "redStandbyPhase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_SP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_SP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_SP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_st_r.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "redMain1Phase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_M1
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_M1.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_M1.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_m1_r.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "redEndPhase";
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_BP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_BP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_BP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r1.png"; battlePhaseImage.visible = true; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r2.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r3.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r4.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r5.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r6.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r7.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.source = "qrc:/image/phase_name/e_ba_r8.png"; } }
+            PauseAnimation { duration: 100 }
+            ScriptAction { script: { battlePhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    /*dialog1.visible = true;*/
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_M2
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_M2.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_M2.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_m2_r.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    /**/
+                }
+            }
+        }
+    }
+
+    ParallelAnimation {
+        id: ani_red_EP
+        running: false
+        SequentialAnimation {
+            loops: Animation.Infinite
+            ScriptAction { script: { image_EP.x = 0; } }
+            PauseAnimation { duration: 200 }
+            ScriptAction { script: { image_EP.x = -72 } }
+            PauseAnimation { duration: 600 }
+        }
+        SequentialAnimation {
+            ScriptAction { script: { otherPhaseImage.source = "qrc:/image/phase_name/e_en_r.png"; otherPhaseImage.visible = true; } }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 0; to: 1; duration: 200 }
+            PauseAnimation { duration: 400 }
+            NumberAnimation { target: otherPhaseImage; property: "opacity"; from: 1; to: 0; duration: 200 }
+            ScriptAction { script: { otherPhaseImage.visible = false; } }
+        }
+        SequentialAnimation {
+            PauseAnimation { duration: 800 }
+            ScriptAction {
+                script: {
+                    state = "blueDrawPhase";
+                }
+            }
+        }
+    }
+
     transitions: [
         Transition {
             from: "startGame"
             to: "blueDrawPhase"
-            ParallelAnimation {
-                SequentialAnimation {
-                    id: animation_DP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_DP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_DP.x = -72 } }
-                    PauseAnimation { duration: 600 }
-                }
-                SequentialAnimation {
-                    PauseAnimation { duration: 500 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.red_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.red_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.red_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.red_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.red_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { Data.blue_draw_card(); } }
-                    PauseAnimation { duration: 250 }
-                    ScriptAction { script: { state = "blueStandbyPhase"; } }
-                }
+            SequentialAnimation {
+                ScriptAction { script: { backmusicMusic.play(); Data.blue_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.blue_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.blue_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.blue_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.blue_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.red_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.red_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.red_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.red_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.red_draw_card(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { ani_blue_DP.start(); } }
+                PauseAnimation { duration: 300 }
+                ScriptAction { script: { Data.blue_draw_card(); } }
             }
         },
         Transition {
             from: "blueDrawPhase"
             to: "blueStandbyPhase"
-            ParallelAnimation {
-                SequentialAnimation {
-                    ScriptAction {
-                        script: {
-                            image_DP.x = 0;
-                            animation_DP.stop();
-                            animation3_DP.stop();
-                        }
-                    }
-                    SequentialAnimation {
-                        id: animation_SP
-                        loops: Animation.Infinite
-                        ScriptAction { script: { image_SP.x = 0; } }
-                        PauseAnimation { duration: 200 }
-                        ScriptAction { script: { image_SP.x = -72 } }
-                        PauseAnimation { duration: 600 }
-                    }
-                }
-                SequentialAnimation {
-                    PauseAnimation { duration: 800 }
-                    ScriptAction { script: { state = "blueMain1Phase"; } }
+            ScriptAction {
+                script: {
+                    image_DP.x = 0;
+                    ani_blue_DP.stop();
+                    ani_blue_SP.start();
                 }
             }
         },
         Transition {
             from: "blueStandbyPhase"
             to: "blueMain1Phase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_SP.x = 0;
-                        animation_SP.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation_M1
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_M1.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_M1.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_SP.x = 0;
+                    ani_blue_SP.stop();
+                    ani_blue_M1.start();
                 }
             }
         },
         Transition {
             from: "blueMain1Phase"
             to: "blueBattlePhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_M1.x = 0;
-                        animation_M1.stop();
-                        for(var index = 0; index<5; index++) {
-                            if(Data.blueFrontCards[index] !== undefined) {
-                                if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                                    Data.blueFrontCards[index].battleState = 1
-                                    Data.blueFrontCards[index].swordVisible = true;
-                                }
-                            }
-                        }
-                    }
+            ScriptAction {
+                script: {
+                    image_M1.x = 0;
+                    ani_blue_M1.stop();
+                    ani_blue_BP.start();
+                    battle_turnMusic.play();
                 }
-                SequentialAnimation {
-                    id: animation_BP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_BP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_BP.x = -72 } }
-                    PauseAnimation { duration: 600 }
-                }
-
             }
         },
-//        Transition {
-//            from: "blueMain1Phase"
-//            to: "blueEndPhase"
-//            SequentialAnimation {
-//                ScriptAction {
-//                    script: {
-//                        image_M1.x = 0;
-//                        animation_M1.stop();
-//                    }
-//                }
-//                SequentialAnimation {
-//                    id: animation_EP
-//                    loops: Animation.Infinite
-//                    ScriptAction { script: { image_EP.x = 0; } }
-//                    PauseAnimation { duration: 200 }
-//                    ScriptAction { script: { image_EP.x = -72 } }
-//                    PauseAnimation { duration: 600 }
-//                }
-//            }
-//        },
+        Transition {
+            from: "blueMain1Phase"
+            to: "blueEndPhase"
+            ScriptAction {
+                script: {
+                    image_M1.x = 0;
+                    ani_blue_M1.stop();
+                    ani_blue_EP.start();
+                }
+            }
+        },
         Transition {
             from: "blueBattlePhase"
             to: "blueMain2Phase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_BP.x = 0;
-                        animation_BP.stop();
-                        for(var index = 0; index<5; index++) {
-                            if(Data.blueFrontCards[index] !== undefined) {
-                                if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                                    Data.blueFrontCards[index].battleState = 0
-                                    Data.blueFrontCards[index].swordVisible = false;
-                                }
-                            }
-                        }
-                    }
-                }
-                SequentialAnimation {
-                    id: animation_M2
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_M2.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_M2.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_BP.x = 0;
+                    ani_blue_BP.stop();
+                    ani_blue_M2.start();
                 }
             }
         },
         Transition {
             from: "blueBattlePhase"
             to: "blueEndPhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_BP.x = 0;
-                        animation_BP.stop();
-                        for(var index = 0; index<5; index++) {
-                            if(Data.blueFrontCards[index] !== undefined) {
-                                if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
-                                    Data.blueFrontCards[index].battleState = 0
-                                    Data.blueFrontCards[index].swordVisible = false;
-                                }
-                            }
-                        }
-                    }
-                }
-                SequentialAnimation {
-                    id: animation3_EP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_EP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_EP.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_BP.x = 0;
+                    ani_blue_BP.stop();
+                    ani_blue_EP.start();
                 }
             }
         },
         Transition {
             from: "blueMain2Phase"
             to: "blueEndPhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_M2.x = 0;
-                        animation_M2.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation_EP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_EP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_EP.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_M2.x = 0;
+                    ani_blue_M2.stop();
+                    ani_blue_EP.start();
                 }
             }
         },
@@ -676,8 +982,7 @@ Image {
                 ScriptAction {
                     script: {
                         image_EP.x = 0;
-                        animation_EP.stop();
-                        animation3_EP.stop();
+                        ani_blue_EP.stop();
                         image_DP.source = "qrc:/image/phase/pha_b_dr.bmp"
                         image_DP.width = 648
                         image_DP.height = 135
@@ -696,6 +1001,7 @@ Image {
                         image_EP.source = "qrc:/image/phase/pha_b_en.bmp"
                         image_EP.width = 648
                         image_EP.height = 135
+                        turn_changeMusic.play();
                     }
                 }
                 ScriptAction { script: { image_DP.x = -72 } }
@@ -846,323 +1152,267 @@ Image {
                         image_EP.height = 270
                         image_EP.x = 0
                         image_EP.y = -135
+                        ani_red_DP.start()
                     }
-                }
-                SequentialAnimation {
-                    id: animation2_DP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_DP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_DP.x = -72 } }
-                    PauseAnimation { duration: 600 }
                 }
             }
         },
         Transition {
             from: "redDrawPhase"
             to: "redStandbyPhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_DP.x = 0;
-                        image_DP.y = -135;
-                        animation2_DP.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation2_SP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_SP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_SP.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_DP.x = 0;
+                    image_DP.y = -135;
+                    ani_red_DP.stop();
+                    ani_red_SP.start();
                 }
             }
         },
         Transition {
             from: "redStandbyPhase"
             to: "redMain1Phase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_SP.x = 0;
-                        image_SP.y = -135;
-                        animation2_SP.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation2_M1
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_M1.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_M1.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_SP.x = 0;
+                    image_SP.y = -135;
+                    ani_red_SP.stop();
+                    ani_red_M1.start();
                 }
             }
         },
         Transition {
             from: "redMain1Phase"
             to: "redBattlePhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_M1.x = 0;
-                        image_M1.y = -135;
-                        animation2_M1.stop();
-                    }
+            ScriptAction {
+                script: {
+                    image_M1.x = 0;
+                    image_M1.y = -135;
+                    ani_red_M1.stop();
+                    ani_red_BP.start();
                 }
-                SequentialAnimation {
-                    id: animation2_BP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_BP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_BP.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            }
+        },
+        Transition {
+            from: "redMain1Phase"
+            to: "redEndPhase"
+            ScriptAction {
+                script: {
+                    image_M1.x = 0;
+                    image_M1.y = -135;
+                    ani_red_M1.stop();
+                    ani_red_EP.start();
                 }
             }
         },
         Transition {
             from: "redBattlePhase"
             to: "redMain2Phase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_BP.x = 0;
-                        image_BP.y = -135;
-                        animation2_BP.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation2_M2
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_M2.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_M2.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_BP.x = 0;
+                    image_BP.y = -135;
+                    ani_red_BP.stop();
+                    ani_red_M2.start();
                 }
             }
         },
         Transition {
             from: "redMain2Phase"
             to: "redEndPhase"
-            SequentialAnimation {
-                ScriptAction {
-                    script: {
-                        image_M2.x = 0;
-                        image_M2.y = -135;
-                        animation2_M2.stop();
-                    }
-                }
-                SequentialAnimation {
-                    id: animation2_EP
-                    loops: Animation.Infinite
-                    ScriptAction { script: { image_EP.x = 0; } }
-                    PauseAnimation { duration: 200 }
-                    ScriptAction { script: { image_EP.x = -72 } }
-                    PauseAnimation { duration: 600 }
+            ScriptAction {
+                script: {
+                    image_M2.x = 0;
+                    image_M2.y = -135;
+                    ani_red_M2.stop();
+                    ani_red_EP.start();
                 }
             }
         },
         Transition {
             from: "redEndPhase"
             to: "blueDrawPhase"
-            ParallelAnimation {
-                SequentialAnimation {
-                    ScriptAction {
-                        script: Data.blueSummonEnable = true;
+            SequentialAnimation {
+                ScriptAction {
+                    script: {
+                        image_DP.x = 0;
+                        ani_red_EP.stop();
+                        image_DP.source = "qrc:/image/phase/pha_r_dr.bmp"
+                        image_DP.width = 648
+                        image_DP.height = 135
+                        image_DP.y = 0
+                        image_SP.source = "qrc:/image/phase/pha_r_st.bmp"
+                        image_SP.width = 648
+                        image_SP.height = 135
+                        image_SP.y = 0
+                        image_M1.source = "qrc:/image/phase/pha_r_m1.bmp"
+                        image_M1.width = 648
+                        image_M1.height = 135
+                        image_M1.y = 0
+                        image_BP.source = "qrc:/image/phase/pha_r_ba.bmp"
+                        image_BP.width = 648
+                        image_BP.height = 135
+                        image_BP.y = 0
+                        image_M2.source = "qrc:/image/phase/pha_r_m2.bmp"
+                        image_M2.width = 648
+                        image_M2.height = 135
+                        image_M2.y = 0
+                        image_EP.source = "qrc:/image/phase/pha_r_en.bmp"
+                        image_EP.width = 648
+                        image_EP.height = 135
+                        image_EP.y = 0
+                        turn_changeMusic.play();
                     }
-                    PauseAnimation { duration: 2500 }
-                    ScriptAction { script: { state = "blueStandbyPhase"; } }
                 }
-                SequentialAnimation {
-                    ScriptAction {
-                        script: {
-                            image_DP.x = 0;
-                            animation2_EP.stop();
-                            image_DP.source = "qrc:/image/phase/pha_r_dr.bmp"
-                            image_DP.width = 648
-                            image_DP.height = 135
-                            image_DP.y = 0
-                            image_SP.source = "qrc:/image/phase/pha_r_st.bmp"
-                            image_SP.width = 648
-                            image_SP.height = 135
-                            image_SP.y = 0
-                            image_M1.source = "qrc:/image/phase/pha_r_m1.bmp"
-                            image_M1.width = 648
-                            image_M1.height = 135
-                            image_M1.y = 0
-                            image_BP.source = "qrc:/image/phase/pha_r_ba.bmp"
-                            image_BP.width = 648
-                            image_BP.height = 135
-                            image_BP.y = 0
-                            image_M2.source = "qrc:/image/phase/pha_r_m2.bmp"
-                            image_M2.width = 648
-                            image_M2.height = 135
-                            image_M2.y = 0
-                            image_EP.source = "qrc:/image/phase/pha_r_en.bmp"
-                            image_EP.width = 648
-                            image_EP.height = 135
-                            image_EP.y = 0
-                        }
+                ScriptAction { script: { image_DP.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_DP.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_DP.source = "qrc:/image/phase/pha_s_dr.bmp"
+                        image_DP.width = 144
+                        image_DP.height = 270
+                        image_DP.x = 0
+                        image_DP.y = 0
                     }
-                    ScriptAction { script: { image_DP.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_DP.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_DP.source = "qrc:/image/phase/pha_s_dr.bmp"
-                            image_DP.width = 144
-                            image_DP.height = 270
-                            image_DP.x = 0
-                            image_DP.y = 0
-                        }
+                }
+                ScriptAction { script: { image_SP.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_SP.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_SP.source = "qrc:/image/phase/pha_s_st.bmp"
+                        image_SP.width = 144
+                        image_SP.height = 270
+                        image_SP.x = 0
+                        image_SP.y = 0
                     }
-                    ScriptAction { script: { image_SP.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_SP.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_SP.source = "qrc:/image/phase/pha_s_st.bmp"
-                            image_SP.width = 144
-                            image_SP.height = 270
-                            image_SP.x = 0
-                            image_SP.y = 0
-                        }
+                }
+                ScriptAction { script: { image_M1.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M1.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_M1.source = "qrc:/image/phase/pha_s_m1.bmp"
+                        image_M1.width = 144
+                        image_M1.height = 270
+                        image_M1.x = 0
+                        image_M1.y = 0
                     }
-                    ScriptAction { script: { image_M1.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M1.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_M1.source = "qrc:/image/phase/pha_s_m1.bmp"
-                            image_M1.width = 144
-                            image_M1.height = 270
-                            image_M1.x = 0
-                            image_M1.y = 0
-                        }
+                }
+                ScriptAction { script: { image_BP.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_BP.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_BP.source = "qrc:/image/phase/pha_s_ba.bmp"
+                        image_BP.width = 144
+                        image_BP.height = 270
+                        image_BP.x = 0
+                        image_BP.y = 0
                     }
-                    ScriptAction { script: { image_BP.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_BP.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_BP.source = "qrc:/image/phase/pha_s_ba.bmp"
-                            image_BP.width = 144
-                            image_BP.height = 270
-                            image_BP.x = 0
-                            image_BP.y = 0
-                        }
+                }
+                ScriptAction { script: { image_M2.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_M2.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_M2.source = "qrc:/image/phase/pha_s_m2.bmp"
+                        image_M2.width = 144
+                        image_M2.height = 270
+                        image_M2.x = 0
+                        image_M2.y = 0
                     }
-                    ScriptAction { script: { image_M2.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_M2.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_M2.source = "qrc:/image/phase/pha_s_m2.bmp"
-                            image_M2.width = 144
-                            image_M2.height = 270
-                            image_M2.x = 0
-                            image_M2.y = 0
-                        }
-                    }
-                    ScriptAction { script: { image_EP.x = -72 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -144 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -216 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -288 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -360 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -432 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -504 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction { script: { image_EP.x = -576 } }
-                    PauseAnimation { duration: 20 }
-                    ScriptAction {
-                        script: {
-                            image_EP.source = "qrc:/image/phase/pha_s_en.bmp"
-                            image_EP.width = 144
-                            image_EP.height = 270
-                            image_EP.x = 0
-                            image_EP.y = 0
-
-                        }
-                    }
-                    SequentialAnimation {
-                        id: animation3_DP
-                        loops: Animation.Infinite
-                        ScriptAction { script: { image_DP.x = 0; } }
-                        PauseAnimation { duration: 200 }
-                        ScriptAction { script: { image_DP.x = -72 } }
-                        PauseAnimation { duration: 600 }
+                }
+                ScriptAction { script: { image_EP.x = -72 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -144 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -216 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -288 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -360 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -432 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -504 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction { script: { image_EP.x = -576 } }
+                PauseAnimation { duration: 20 }
+                ScriptAction {
+                    script: {
+                        image_EP.source = "qrc:/image/phase/pha_s_en.bmp"
+                        image_EP.width = 144
+                        image_EP.height = 270
+                        image_EP.x = 0
+                        image_EP.y = 0
+                        ani_blue_DP.start();
                     }
                 }
             }

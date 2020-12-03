@@ -21,8 +21,6 @@ var redDeck = [5,6,1,2,3,4]
 
 var componentObject;
 var boardObject;
-var dialogText;
-var dialogObject;
 var infoImageObject;
 var infoTextObject;
 var blueSwordAnimationObject;
@@ -46,7 +44,6 @@ var blueSword;
 var redSword;
 
 var oldSelectCard;
-var oldhighlight;
 
 var blueSummonEnable = true;
 
@@ -202,7 +199,6 @@ function redVerticalFaceupFront(index) {
     redFrontCards[place] = frontImage;
     frontImage.index = place;
     frontImage.z = 2;
-    frontImage.state = "redHandAreaHighlight";
     frontImage.state = "redVerticalFaceupFront";
 }
 
@@ -213,12 +209,5 @@ function redHorizontalFacedownFront(index) {
     redFrontCards[place] = frontImage;
     frontImage.index = place;
     frontImage.z = 2;
-    frontImage.state = "redHandAreaHighlight";
     frontImage.state = "redHorizontalFacedownFront";
-}
-
-function dialog_show(text) {
-    console.log("receive dialog show " + text);
-    dialogText.text = text
-    dialogObject.visible = true
 }

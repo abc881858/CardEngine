@@ -68,24 +68,11 @@
         <file>image/phase_name/e_ba_b6.png</file>
         <file>image/phase_name/e_ba_b7.png</file>
         <file>image/phase_name/e_ba_b8.png</file>
-        <file>image/phase_name/e_ba_r1.bmp</file>
-        <file>image/phase_name/e_ba_r2.bmp</file>
-        <file>image/phase_name/e_ba_r3.bmp</file>
-        <file>image/phase_name/e_ba_r4.bmp</file>
-        <file>image/phase_name/e_ba_r5.bmp</file>
-        <file>image/phase_name/e_ba_r6.bmp</file>
-        <file>image/phase_name/e_ba_r7.bmp</file>
-        <file>image/phase_name/e_ba_r8.bmp</file>
         <file>image/phase_name/e_dr_b.png</file>
-        <file>image/phase_name/e_dr_r.bmp</file>
         <file>image/phase_name/e_en_b.png</file>
-        <file>image/phase_name/e_en_r.bmp</file>
         <file>image/phase_name/e_m1_b.png</file>
-        <file>image/phase_name/e_m1_r.bmp</file>
         <file>image/phase_name/e_m2_b.png</file>
-        <file>image/phase_name/e_m2_r.bmp</file>
         <file>image/phase_name/e_st_b.png</file>
-        <file>image/phase_name/e_st_r.bmp</file>
         <file>image/LP/LP0.png</file>
         <file>image/LP/LP1.png</file>
         <file>image/LP/LP2.png</file>
@@ -97,5 +84,40 @@
         <file>image/LP/LP8.png</file>
         <file>image/LP/LP9.png</file>
         <file>image/LP/NA.png</file>
+        <file>image/dialog1.png</file>
+        <file>MenuItem.qml</file>
+        <file>image/menu/menu_main_0.png</file>
+        <file>image/menu/menu_main_1.png</file>
+        <file>image/menu/menu_main_2.png</file>
+        <file>image/menu/menu_main_3.png</file>
+        <file>image/menu/menu_main_4.png</file>
+        <file>image/juedoukaishi.png</file>
+        <file>voice/start.wav</file>
+        <file>voice/attack.wav</file>
+        <file>voice/backmusic.mp3</file>
+        <file>voice/battle_turn.wav</file>
+        <file>voice/card_attacked_brake.wav</file>
+        <file>voice/card_move.wav</file>
+        <file>voice/card_normal_brake.wav</file>
+        <file>voice/damage.wav</file>
+        <file>voice/decide.wav</file>
+        <file>voice/m_lose.wav</file>
+        <file>voice/m_menu.wav</file>
+        <file>voice/m_win.wav</file>
+        <file>voice/turn_change.wav</file>
+        <file>voice/unable.wav</file>
+        <file>image/phase_name/e_ba_r1.png</file>
+        <file>image/phase_name/e_ba_r2.png</file>
+        <file>image/phase_name/e_ba_r3.png</file>
+        <file>image/phase_name/e_ba_r4.png</file>
+        <file>image/phase_name/e_ba_r5.png</file>
+        <file>image/phase_name/e_ba_r6.png</file>
+        <file>image/phase_name/e_ba_r7.png</file>
+        <file>image/phase_name/e_ba_r8.png</file>
+        <file>image/phase_name/e_dr_r.png</file>
+        <file>image/phase_name/e_en_r.png</file>
+        <file>image/phase_name/e_m1_r.png</file>
+        <file>image/phase_name/e_m2_r.png</file>
+        <file>image/phase_name/e_st_r.png</file>
     </qresource>
 </RCC>
