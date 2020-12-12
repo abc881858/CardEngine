@@ -14,10 +14,21 @@ Item {
         id: card_moveMusic
         source: "qrc:/voice/card_move.wav"
     }
-
     Audio {
         id: ikenieMusic
         source: "qrc:/voice/ikenie.wav"
+    }
+    Audio {
+        id: magic_activeMusic
+        source: "qrc:/voice/magic_active.wav"
+    }
+    Audio {
+        id: card_attacked_brakeMusic
+        source: "qrc:/voice/card_attacked_brake.wav"
+    }
+    Audio {
+        id: card_openMusic
+        source: "qrc:/voice/card_open.wav"
     }
 
     property int isdn
@@ -26,6 +37,18 @@ Item {
     property int judgeIndex: 0
 
     property alias swordVisible: sword.visible
+    property alias swordRotation: sword.rotation
+
+    function effectActive() {
+        effectActiveAnimation.start();
+    }
+    function effectLabel() {
+        var atkNum = Number(Data.boardCards[isdn]["atk"]) - 500;
+        var defNum = Number(Data.boardCards[isdn]["def"]) - 500;
+        if(atkNum < 0) atkNum = 0;
+        if(defNum < 0) defNum = 0;
+        label.text = atkNum.toString() + "/" + defNum.toString();
+    }
 
     NumberAnimation { id: highlightAnimation1; target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
     NumberAnimation { id: unhighlightAnimation1; target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
@@ -34,7 +57,6 @@ Item {
 
     function checkHand() {
         if(card_item.state === "blueHandArea") {
-            highlightAnimation1.start();
             if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
                 if(Data.findBlueFrontIndex() !== -1) {
                     if(Data.blueSummonEnable) {
@@ -81,12 +103,6 @@ Item {
             if(Data.boardObject.state === "blueBattlePhase") {
                 if(Data.battleFromIndex !== -1) {
                     Data.battleToIndex = card_item.index;
-//                    var angle0 = Math.atan((mouseX-blueSword0.x-25*1.8)/(blueSword0.y+36*1.8-mouseY))
-//                    if((blueSword0.y+36*1.8) < mouseY) {
-//                        blueSword0.rotation = angle0/3.1415*180 + 180
-//                    } else {
-//                        blueSword0.rotation = angle0/3.1415*180
-//                    }
                     Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
                     Data.blueSword.visible = true;
                     Data.blueSwordAnimationObject.start();
@@ -102,6 +118,7 @@ Item {
                 highlight_image.source = "qrc:/image/chooseBlue.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
+                highlightAnimation1.start();
             } else if(card_item.state === "blueVerticalFaceupFront" ||
                       card_item.state === "blueVerticalFacedownFront" ||
                       card_item.state === "blueGrave") {
@@ -140,11 +157,14 @@ Item {
                         card_item.state === "blueHorizontalFacedownFront") {
                     tributeButton.visible = true;
                 }
+            } else if(Data.blueChainCard === true) {
+                if(Data.blueFrontMatchActiveCondition(card_item.index) && card_item.state === "blueVerticalFaceupFront") {
+                    activeButton.visible = true;
+                }
             } else {
                 checkHand();
                 checkFront();
             }
-
         } else {
             highlight_image.visible = false;
 
@@ -155,6 +175,7 @@ Item {
             specialButton.visible = false;
             tributeButton.visible = false;
             attackButton.visible = false;
+            activeButton.visible = false;
 
             if(card_item.state === "blueHandArea") {
                 unhighlightAnimation1.start();
@@ -163,9 +184,6 @@ Item {
             }
         }
     }
-
-    // 0：无 1：等待攻击 2：选择了攻击来源 3：选择了攻击目标
-    property int battleState: 0
 
     Flipable {
         id: card_image
@@ -282,20 +300,23 @@ Item {
                     Data.blueFrontCards[place2] = card_item;
                     card_item.index = place2;
                     card_item.z = 2;
-                    Data.blueSummonEnable = false;
+//                    Data.blueSummonEnable = false;
                     card_item.state = "blueVerticalFaceupFront";
                     //Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
                 } else if(Data.tributeNumber === 1) {
                     Data.tributeCard = card_item;
                     Data.boardDialog.source = "qrc:/image/dialog/dialog2.png"
+                    Data.boardDialog.index = 2
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 2) {
                     Data.tributeCard = card_item;
                     Data.boardDialog.source = "qrc:/image/dialog/dialog3.png"
+                    Data.boardDialog.index = 3
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 3) {
                     Data.tributeCard = card_item;
                     Data.boardDialog.source = "qrc:/image/dialog/dialog4.png"
+                    Data.boardDialog.index = 4
                     Data.boardDialog.visible = true
                 }
             }
@@ -341,6 +362,60 @@ Item {
         onClicked: {
             card_item.highlight = false
             card_item.state = "blueGrave";
+        }
+    }
+
+    Image {
+        id: effect3
+        width: 133
+        height: 131
+        opacity: 0.0
+        anchors.horizontalCenter: card_item.horizontalCenter
+        anchors.verticalCenter: card_item.verticalCenter
+        source: "qrc:/image/active.png"
+        visible: false
+    }
+
+    SequentialAnimation {
+        id: effectActiveAnimation
+        running: false
+        ScriptAction { script: { magic_activeMusic.play(); effect3.visible = true } }
+        ParallelAnimation {
+            NumberAnimation { target: effect3; properties: "scale"; from: 0.0; to: 1.0; duration: 600; }
+            NumberAnimation { target: effect3; properties: "opacity"; from: 0.0; to: 1.0; duration: 600; }
+        }
+        ScriptAction { script: { effect3.visible = false } }
+    }
+
+    SequentialAnimation {
+        id: effect3Animation
+        running: false
+        ScriptAction { script: { effectActiveAnimation.start() } }
+        PauseAnimation { duration: 1000 }
+        //先翻转再攻击我
+        ScriptAction {
+            script: {
+                Data.redFrontCards[0].state = "redVerticalFaceupFront"
+                Data.redFrontCards[0].swordVisible = false
+                Data.redSwordAnimationObject.start()
+            }
+        }
+    }
+
+    Button {
+        id: activeButton
+        y: -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 180
+        height: 60
+        text: "发动"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            card_item.highlight = false
+            Data.blueChainCard = false
+            effect3Animation.start();
         }
     }
 
@@ -607,6 +682,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        ikenieMusic.play();
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null2.png"
                         card_item.width = 90
@@ -635,6 +711,7 @@ Item {
             SequentialAnimation {
                 ScriptAction {
                     script: {
+                        card_moveMusic.play();
                         frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
                         backItem.source = "qrc:/image/area/null.png"
                         card_item.width = 90
@@ -658,7 +735,25 @@ Item {
             from: "redHorizontalFacedownFront"
             to: "redHorizontalFaceupFront"
             SequentialAnimation {
-                NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 200 }
+                ScriptAction { script: { card_openMusic.play(); } }
+                NumberAnimation { target: rotationFace; from: -180; to: 0; property: "angle"; duration: 270 }
+                ScriptAction {
+                    script: {
+                        label.anchors.bottom = card_image.top
+                        label.visible = true
+                    }
+                }
+            }
+        },
+        Transition {
+            from: "redHorizontalFacedownFront"
+            to: "redVerticalFaceupFront"
+            SequentialAnimation {
+                ScriptAction { script: { card_openMusic.play(); } }
+                ParallelAnimation {
+                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 270 }
+                    NumberAnimation { target: rotationStand; from: -90; to: 0; property: "angle"; duration: 270 }
+                }
                 ScriptAction {
                     script: {
                         label.anchors.bottom = card_image.top
@@ -710,15 +805,15 @@ Item {
                     }
                 }
             }
-
         },
         Transition {
             to: "redGrave"
             SequentialAnimation {
+                ScriptAction { script: { card_attacked_brakeMusic.play(); } }
                 ParallelAnimation {
-                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 200 }
-                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 360; duration: 200 }
-                    NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 200 }
+                    NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 270 }
+                    NumberAnimation { target: card_item; properties: "y"; from: y; to: 360; duration: 270 }
+                    NumberAnimation { target: rotationStand; to: -180; property: "angle"; duration: 270 }
                 }
                 ScriptAction {
                     script: {

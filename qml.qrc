@@ -141,5 +141,8 @@
         <file>image/LP/damageA.png</file>
         <file>image/LP/damageB.png</file>
         <file>image/LP/damageNA.png</file>
+        <file>image/active.png</file>
+        <file>voice/magic_active.wav</file>
+        <file>voice/card_open.wav</file>
     </qresource>
 </RCC>

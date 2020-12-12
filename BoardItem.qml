@@ -21,8 +21,9 @@ Image {
         Data.infoImageObject = infoImage;
         Data.infoTextObject = infoText;
         Data.blueSword = blueSword;
-        Data.redSword = redSword0;
+        Data.redSword = redSword;
         Data.blueSwordAnimationObject = blueSwordAnimation;
+        Data.redSwordAnimationObject = redSwordAnimation;
     }
 
 //    WebSocket {
@@ -229,12 +230,18 @@ Image {
         height: 324
         source: "qrc:/image/dialog/dialog3.png"
         visible: false
+        property int index: 3
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
-                dialogImage.visible = false
-                Data.blueTributeSummon = true
+                if(dialogImage.index === 1) {
+                    dialogImage.visible = false
+                    Data.blueChainCard = true
+                } else if(dialogImage.index === 3) {
+                    dialogImage.visible = false
+                    Data.blueTributeSummon = true
+                }
             }
         }
     }
@@ -432,6 +439,141 @@ Image {
         visible: false
     }
 
+    Image {
+        id: redSword
+        x: 1192
+        y: 383
+        z: 9
+        width: 90
+        height: 130
+        source: "qrc:/image/sword.png"
+        fillMode: Image.PreserveAspectFit
+        visible: false
+        rotation: 180
+    }
+
+    SequentialAnimation {
+        id: redSwordAnimation
+        PauseAnimation { duration: 300 }
+        ScriptAction { script: { redSword.visible = true } }
+        PauseAnimation { duration: 200 }
+        NumberAnimation { target: redSword; properties: "rotation"; from: 180; to: 252; duration: 200 }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { attackMusic.play() } }
+        ParallelAnimation {
+            NumberAnimation { target: redSword; properties: "x"; from: 1192; to: 630; duration: 200 }
+            NumberAnimation { target: redSword; properties: "y"; from: 383; to: 571; duration: 200 }
+        }
+        ScriptAction {
+            script: {
+                redSword.visible = false;
+                redSword.rotation = 180;
+                redSword.x = 1192;
+                redSword.y = 383;
+            }
+        }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { Data.blueFrontCards[0].effectActive(); } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { Data.redFrontCards[0].effectLabel(); } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction {
+            script: {
+                Data.redLP -= 1100;
+                damageMusic.play();
+                damage_red_minus.visible = true;
+                damage_red_qian.source = "qrc:/image/LP/damage1.png";
+                damage_red_bai.source = "qrc:/image/LP/damage1.png";
+                damage_red_qian.visible = true;
+                damage_red_bai.visible = true;
+                damage_red_shi.visible = true;
+                damage_red_ge.visible = true;
+                lp_red_qian.source = "qrc:/image/LP/LP5.png"
+                lp_red_bai.source = "qrc:/image/LP/LP0.png"
+            }
+        }
+        PauseAnimation { duration: 1500 }
+        ScriptAction {
+            script: {
+                damage_red_minus.visible = false;
+                damage_red_qian.visible = false;
+                damage_red_bai.visible = false;
+                damage_red_shi.visible = false;
+                damage_red_ge.visible = false;
+
+                Data.redFrontCards[0].state = "redGrave";
+                Data.redGraveCards.push(Data.redFrontCards[0]);
+                delete Data.redFrontCards[0];
+            }
+        }
+
+        PauseAnimation { duration: 500 }
+        ScriptAction {
+            script: {
+                Data.redFrontCards[1].swordVisible = false;
+                redSword.x = 1050;
+                redSword.y = 383;
+                redSword.visible = true;
+            }
+        }
+        PauseAnimation { duration: 200 }
+        NumberAnimation { target: redSword; properties: "rotation"; from: 180; to: 246; duration: 200 }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { attackMusic.play() } }
+        ParallelAnimation {
+            NumberAnimation { target: redSword; properties: "x"; from: 1050; to: 630; duration: 200 }
+            NumberAnimation { target: redSword; properties: "y"; from: 383; to: 571; duration: 200 }
+        }
+        ScriptAction {
+            script: {
+                redSword.visible = false;
+                redSword.rotation = 180;
+                redSword.x = 1192;
+                redSword.y = 383;
+            }
+        }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { Data.blueFrontCards[0].effectActive(); } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { Data.redFrontCards[1].effectLabel(); } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction {
+            script: {
+                Data.redLP -= 1900;
+                damageMusic.play();
+                damage_red_minus.visible = true;
+                damage_red_qian.source = "qrc:/image/LP/damage1.png";
+                damage_red_bai.source = "qrc:/image/LP/damage9.png";
+                damage_red_qian.visible = true;
+                damage_red_bai.visible = true;
+                damage_red_shi.visible = true;
+                damage_red_ge.visible = true;
+                lp_red_qian.source = "qrc:/image/LP/LP3.png"
+                lp_red_bai.source = "qrc:/image/LP/LP1.png"
+            }
+        }
+        PauseAnimation { duration: 1500 }
+        ScriptAction {
+            script: {
+                damage_red_minus.visible = false;
+                damage_red_qian.visible = false;
+                damage_red_bai.visible = false;
+                damage_red_shi.visible = false;
+                damage_red_ge.visible = false;
+
+                Data.redFrontCards[1].state = "redGrave";
+                Data.redGraveCards.push(Data.redFrontCards[1]);
+                delete Data.redFrontCards[1];
+            }
+        }
+        PauseAnimation { duration: 1500 }
+        ScriptAction {
+            script: {
+                state = "redEndPhase"
+            }
+        }
+    }
+
     SequentialAnimation {
         id: blueSwordAnimation
         NumberAnimation { target: blueSword; properties: "rotation"; from: 0; to: 26; duration: 200 }
@@ -555,19 +697,6 @@ Image {
 
             }
         }
-    }
-
-    Image {
-        id: redSword0
-        x: 1192
-        y: 383
-        z: 3
-        width: 90
-        height: 130
-        source: "qrc:/image/sword.png"
-        fillMode: Image.PreserveAspectFit
-        visible: false
-        rotation: 180
     }
 
     states: [
@@ -889,7 +1018,19 @@ Image {
             PauseAnimation { duration: 800 }
             ScriptAction {
                 script: {
-                    state = "redEndPhase";
+                    Data.redHorizontalFacedownFront(0);
+                }
+            }
+            PauseAnimation { duration: 2000 }
+            ScriptAction {
+                script: {
+                    Data.redVerticalFaceupFront(0);
+                }
+            }
+            PauseAnimation { duration: 2000 }
+            ScriptAction {
+                script: {
+                     state = "redBattlePhase"
                 }
             }
         }
@@ -925,10 +1066,14 @@ Image {
             ScriptAction { script: { battlePhaseImage.visible = false; } }
         }
         SequentialAnimation {
-            PauseAnimation { duration: 800 }
+            PauseAnimation { duration: 1500 }
             ScriptAction {
                 script: {
-                    /*dialog1.visible = true;*/
+                    if(Data.findBlueFrontMatchActiveCondition()) {
+                        Data.boardDialog.source = "qrc:/image/dialog/dialog1.png"
+                        Data.boardDialog.index = 1
+                        Data.boardDialog.visible = true
+                    }
                 }
             }
         }
@@ -1309,6 +1454,8 @@ Image {
                     image_M1.y = -135;
                     ani_red_M1.stop();
                     ani_red_BP.start();
+                    battle_turnMusic.play();
+                    Data.showSword2();
                 }
             }
         },
@@ -1333,6 +1480,18 @@ Image {
                     image_BP.y = -135;
                     ani_red_BP.stop();
                     ani_red_M2.start();
+                }
+            }
+        },
+        Transition {
+            from: "redBattlePhase"
+            to: "redEndPhase"
+            ScriptAction {
+                script: {
+                    image_BP.x = 0;
+                    image_BP.y = -135;
+                    ani_red_BP.stop();
+                    ani_red_EP.start();
                 }
             }
         },

@@ -16,8 +16,8 @@ var turnNumber = 0
 var blueLP = 8000
 var redLP = 8000
 
-var blueDeck = [5,6,1,2,3,4,6,6,6]
-var redDeck = [5,6,1,2,3,4,6,6,6]
+var blueDeck = [5,6,1,2,3,4,6,5,2]
+var redDeck = [5,6,1,2,3,4,6,5,2]
 
 var componentObject;
 var boardObject;
@@ -25,6 +25,7 @@ var boardDialog;
 var infoImageObject;
 var infoTextObject;
 var blueSwordAnimationObject;
+var redSwordAnimationObject;
 
 var blueHandCards = []
 var blueFrontCards = new Array(5)
@@ -47,6 +48,7 @@ var redSword;
 var oldSelectCard;
 
 var blueTributeSummon = false;
+var blueChainCard = false
 var blueSummonEnable = true;
 
 var tributeNumber = 0;
@@ -170,6 +172,20 @@ function findRedBackIndex() {
     return -1;
 }
 
+function blueFrontMatchActiveCondition(index) {
+    if(blueFrontCards[index] !== undefined) { if(blueFrontCards[index].isdn === 6) { return true } }
+    return false;
+}
+
+function findBlueFrontMatchActiveCondition() {
+    if(blueFrontCards[0] !== undefined) { if(blueFrontMatchActiveCondition(0)) { return true; } }
+    if(blueFrontCards[1] !== undefined) { if(blueFrontMatchActiveCondition(1)) { return true; } }
+    if(blueFrontCards[2] !== undefined) { if(blueFrontMatchActiveCondition(2)) { return true; } }
+    if(blueFrontCards[3] !== undefined) { if(blueFrontMatchActiveCondition(3)) { return true; } }
+    if(blueFrontCards[4] !== undefined) { if(blueFrontMatchActiveCondition(4)) { return true; } }
+    return false;
+}
+
 function canEffect(obj) {
     return true;
 }
@@ -235,4 +251,15 @@ function redHorizontalFacedownFront(index) {
     frontImage.index = place;
     frontImage.z = 2;
     frontImage.state = "redHorizontalFacedownFront";
+}
+
+function showSword2() {
+    for(var index = 0; index<5; index++) {
+        if(redFrontCards[index] !== undefined) {
+            if(redFrontCards[index].state === "redVerticalFaceupFront") {
+                redFrontCards[index].swordRotation = 180;
+                redFrontCards[index].swordVisible = true;
+            }
+        }
+    }
 }
