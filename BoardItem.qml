@@ -427,6 +427,16 @@ Image {
         }
     }
 
+    AnimatedSprite {
+        id: coinAnimation
+        running: false
+        source: "loading.png"
+        frameWidth: 72
+        frameHeight: 72
+        frameCount: 14
+        frameDuration: 500
+    }
+
     Image {
         id: blueSword
         x: 630
@@ -741,7 +751,7 @@ Image {
         }
     ]
 
-    function showSword() {
+    function showBlueSword() {
         for(var index = 0; index<5; index++) {
             if(Data.blueFrontCards[index] !== undefined) {
                 if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
@@ -877,7 +887,7 @@ Image {
         SequentialAnimation {
             ScriptAction {
                 script: {
-                    showSword();
+                    showBlueSword();
                 }
             }
         }
@@ -1455,7 +1465,7 @@ Image {
                     ani_red_M1.stop();
                     ani_red_BP.start();
                     battle_turnMusic.play();
-                    Data.showSword2();
+                    Data.showRedSword();
                 }
             }
         },

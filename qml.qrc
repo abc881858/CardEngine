@@ -25,7 +25,6 @@
         <file>image/hand/axe.png</file>
         <file>image/area/axe.png</file>
         <file>image/sword.png</file>
-        <file>image/sword2.png</file>
         <file>image/cursor/1.png</file>
         <file>image/cursor/2.png</file>
         <file>image/cursor/3.png</file>
@@ -144,5 +143,6 @@
         <file>image/active.png</file>
         <file>voice/magic_active.wav</file>
         <file>voice/card_open.wav</file>
+        <file>image/coin.png</file>
     </qresource>
 </RCC>
