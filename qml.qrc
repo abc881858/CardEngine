@@ -144,5 +144,11 @@
         <file>voice/magic_active.wav</file>
         <file>voice/card_open.wav</file>
         <file>image/coin.png</file>
+        <file>image/area/meepo.png</file>
+        <file>image/area/ogremagi.png</file>
+        <file>image/hand/meepo.png</file>
+        <file>image/hand/ogremagi.png</file>
+        <file>image/info/meepo.png</file>
+        <file>image/info/ogremagi.png</file>
     </qresource>
 </RCC>
