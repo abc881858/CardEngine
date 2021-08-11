@@ -17,7 +17,7 @@ Window {
     BoardItem {
     }
 
-    MenuItem {
+    MainMenu {
     }
 
 //    Button {

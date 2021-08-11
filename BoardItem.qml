@@ -427,15 +427,15 @@ Image {
         }
     }
 
-    AnimatedSprite {
-        id: coinAnimation
-        running: false
-        source: "loading.png"
-        frameWidth: 72
-        frameHeight: 72
-        frameCount: 14
-        frameDuration: 500
-    }
+//    AnimatedSprite {
+//        id: coinAnimation
+//        running: false
+//        source: "loading.png"
+//        frameWidth: 72
+//        frameHeight: 72
+//        frameCount: 14
+//        frameDuration: 500
+//    }
 
     Image {
         id: blueSword
