@@ -12,23 +12,23 @@ Item {
 
     Audio {
         id: card_moveMusic
-        source: "qrc:/voice/card_move.wav"
+//        source: "voice/card_move.wav"
     }
     Audio {
         id: ikenieMusic
-        source: "qrc:/voice/ikenie.wav"
+//        source: "voice/ikenie.wav"
     }
     Audio {
         id: magic_activeMusic
-        source: "qrc:/voice/magic_active.wav"
+//        source: "voice/magic_active.wav"
     }
     Audio {
         id: card_attacked_brakeMusic
-        source: "qrc:/voice/card_attacked_brake.wav"
+//        source: "voice/card_attacked_brake.wav"
     }
     Audio {
         id: card_openMusic
-        source: "qrc:/voice/card_open.wav"
+//        source: "voice/card_open.wav"
     }
 
     property int isdn
@@ -79,12 +79,12 @@ Item {
                                 setButton.visible = true;
                                 Data.tributeNumber = 3
                             } else {
-                                tipInfo.source = "qrc:/image/tip/tip1.png"
+                                tipInfo.source = "image/tip/tip1.png"//必须要有祭品 才能召唤上场
                                 tipInfo.visible = true
                             }
                         }
                     } else {
-                        tipInfo.source = "qrc:/image/tip/tip3.png"
+                        tipInfo.source = "image/tip/tip3.png"//战斗流程中 不能召唤
                         tipInfo.visible = true
                     }
                 }
@@ -115,35 +115,35 @@ Item {
     onHighlightChanged: {
         if(highlight) {
             if(card_item.state === "blueHandArea") {
-                highlight_image.source = "qrc:/image/chooseBlue.png";
+                highlight_image.source = "image/chooseBlue.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
                 highlightAnimation1.start();
             } else if(card_item.state === "blueVerticalFaceupFront" ||
                       card_item.state === "blueVerticalFacedownFront" ||
                       card_item.state === "blueGrave") {
-                highlight_image.source = "qrc:/image/selectBlue.png";
+                highlight_image.source = "image/selectBlue.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
             } else if(card_item.state === "blueHorizontalFaceupFront" ||
                       card_item.state === "blueHorizontalFacedownFront") {
-                highlight_image.source = "qrc:/image/selectBlue.png";
+                highlight_image.source = "image/selectBlue.png";
                 highlight_image.rotation = 90;
                 highlight_image.visible = true;
             } else if(card_item.state === "redHandArea") {
-                highlight_image.source = "qrc:/image/chooseRed.png";
+                highlight_image.source = "image/chooseRed.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
                 highlightAnimation2.start();
             } else if(card_item.state === "redVerticalFaceupFront" ||
                       card_item.state === "redVerticalFacedownFront" ||
                       card_item.state === "redGrave") {
-                highlight_image.source = "qrc:/image/selectRed.png";
+                highlight_image.source = "image/selectRed.png";
                 highlight_image.rotation = 0;
                 highlight_image.visible = true;
             } else if(card_item.state === "redHorizontalFaceupFront" ||
                       card_item.state === "redHorizontalFacedownFront") {
-                highlight_image.source = "qrc:/image/selectRed.png";
+                highlight_image.source = "image/selectRed.png";
                 highlight_image.rotation = 90;
                 highlight_image.visible = true;
             }
@@ -188,8 +188,8 @@ Item {
     Flipable {
         id: card_image
         anchors.fill: card_item
-        front: Image { id: frontItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_image }
-        back: Image { id: backItem; source: "qrc:/image/area/null.png"; anchors.centerIn: card_image }
+        front: Image { id: frontItem; source: "image/area/null.png"; anchors.centerIn: card_image }
+        back: Image { id: backItem; source: "image/area/null.png"; anchors.centerIn: card_image }
         transform: [
             Rotation {
                 id: rotationFace;
@@ -221,7 +221,7 @@ Item {
             anchors.fill: effect1
             width: 138
             height: 130
-            source: "qrc:/image/eff_rainbow.png"
+            source: "image/eff_rainbow.png"
             visible: false
         }
     }
@@ -233,14 +233,14 @@ Item {
         opacity: 0.0
         anchors.horizontalCenter: card_item.horizontalCenter
         anchors.verticalCenter: card_item.verticalCenter
-        source: "qrc:/image/eff_set_b.png"
+        source: "image/eff_set_b.png"
         visible: false
     }
 
     Image {
         id: sword
         anchors.fill: card_item
-        source: "qrc:/image/sword.png"
+        source: "image/sword.png"
         visible: false
     }
 
@@ -251,7 +251,7 @@ Item {
         anchors.horizontalCenter: card_item.horizontalCenter
         anchors.bottom: card_item.top
         anchors.topMargin: 5
-        source: "qrc:/image/tip/tip1.png"
+        source: "image/tip/tip1.png"
         visible: false
     }
 
@@ -260,7 +260,7 @@ Item {
         anchors.fill: card_item
         x: -5
         y: -5
-        source: "qrc:/image/chooseBlue.png"
+        source: "image/chooseBlue.png"
         visible: false
     }
 
@@ -305,17 +305,17 @@ Item {
                     //Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
                 } else if(Data.tributeNumber === 1) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "qrc:/image/dialog/dialog2.png"
+                    Data.boardDialog.source = "image/dialog/dialog2.png"
                     Data.boardDialog.index = 2
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 2) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "qrc:/image/dialog/dialog3.png"
+                    Data.boardDialog.source = "image/dialog/dialog3.png"
                     Data.boardDialog.index = 3
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 3) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "qrc:/image/dialog/dialog4.png"
+                    Data.boardDialog.source = "image/dialog/dialog4.png"
                     Data.boardDialog.index = 4
                     Data.boardDialog.visible = true
                 }
@@ -372,7 +372,7 @@ Item {
         opacity: 0.0
         anchors.horizontalCenter: card_item.horizontalCenter
         anchors.verticalCenter: card_item.verticalCenter
-        source: "qrc:/image/active.png"
+        source: "image/active.png"
         visible: false
     }
 
@@ -412,10 +412,10 @@ Item {
         font.pixelSize: 24
         font.bold: true
         visible: false
-        onClicked: {
+        onClicked: { //点击发动按钮
             card_item.highlight = false
             Data.blueChainCard = false
-            effect3Animation.start();
+            effect3Animation.start(); //效果3发动
         }
     }
 
@@ -527,8 +527,8 @@ Item {
             to: "blueDeckArea"
             ScriptAction {
                 script: {
-                    frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                    backItem.source = "qrc:/image/area/null.png"
+                    frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                    backItem.source = "image/area/null.png"
                     card_item.width = 90
                     card_item.height = 130
                 }
@@ -541,8 +541,8 @@ Item {
                 ScriptAction {
                     script: {
                         card_moveMusic.play();
-                        frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/hand/null.png"
+                        frontItem.source = "image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/hand/null.png"
                         card_item.width = 180
                         card_item.height = 261
                     }
@@ -567,8 +567,8 @@ Item {
                 ScriptAction {
                     script: {
                         card_moveMusic.play();
-                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/area/null.png"
+                        frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/area/null.png"
                         card_item.width = 90
                         card_item.height = 130
                     }
@@ -624,8 +624,8 @@ Item {
                 ScriptAction {
                     script: {
                         card_moveMusic.play();
-                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/area/null.png"
+                        frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/area/null.png"
                         card_item.width = 90
                         card_item.height = 130
                     }
@@ -649,8 +649,8 @@ Item {
             to: "redDeckArea"
             ScriptAction {
                 script: {
-                    frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                    backItem.source = "qrc:/image/area/null2.png"
+                    frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                    backItem.source = "image/area/null2.png"
                     card_item.width = 90
                     card_item.height = 130
                 }
@@ -663,8 +663,8 @@ Item {
                 ScriptAction {
                     script: {
                         card_moveMusic.play();
-                        frontItem.source = "qrc:/image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/hand/null2.png"
+                        frontItem.source = "image/hand/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/hand/null2.png"
                         card_item.width = 180
                         card_item.height = 261
                     }
@@ -683,8 +683,8 @@ Item {
                 ScriptAction {
                     script: {
                         ikenieMusic.play();
-                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/area/null2.png"
+                        frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/area/null2.png"
                         card_item.width = 90
                         card_item.height = 130
                     }
@@ -712,8 +712,8 @@ Item {
                 ScriptAction {
                     script: {
                         card_moveMusic.play();
-                        frontItem.source = "qrc:/image/area/" + Data.boardCards[isdn]["name"]+ ".png"
-                        backItem.source = "qrc:/image/area/null.png"
+                        frontItem.source = "image/area/" + Data.boardCards[isdn]["name"]+ ".png"
+                        backItem.source = "image/area/null.png"
                         card_item.width = 90
                         card_item.height = 130
                     }

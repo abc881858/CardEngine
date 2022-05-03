@@ -12,7 +12,7 @@ Window {
     height: 1080
     title: qsTr("Demo")
 
-    visibility: Window.FullScreen
+    visibility: Window.Maximized
 
     BoardItem {
     }

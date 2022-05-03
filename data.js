@@ -14,9 +14,10 @@ var array = '{\
 var boardCards;
 //var boardSocket;
 
+var blueLP;
+var redLP;
+
 var turnNumber = 0
-var blueLP = 8000
-var redLP = 8000
 
 var blueDeck = [1,2,3,4,5,6,7,8]
 var redDeck = [1,2,3,4,5,6,7,8]
@@ -57,7 +58,7 @@ var tributeNumber = 0;
 var tributeCard;
 
 function sendInfoImage(isdn) {
-    infoImageObject.source = "qrc:/image/info/" + boardCards[isdn]["name"] +".png";
+    infoImageObject.source = "image/info/" + boardCards[isdn]["name"] +".png";
     infoTextObject.text = boardCards[isdn]["description"]
 }
 

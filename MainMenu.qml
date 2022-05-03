@@ -13,12 +13,12 @@ Item {
 
     Audio {
         id: startMusic
-        source: "qrc:/voice/start.wav"
+//        source: "voice/start.wav"
     }
 
     Audio {
         id: decideMusic
-        source: "qrc:/voice/decide.wav"
+//        source: "voice/decide.wav"
     }
 
     Image {
@@ -26,7 +26,7 @@ Item {
         anchors.fill: main_menu
         width: 1440
         height: 1080
-        source: "qrc:/image/menu/menu_main_0.png"
+        source: "image/menu/menu_main_0.png"
 
         Image {
             id: menu_1
@@ -34,7 +34,7 @@ Item {
             y: 527
             width: 135
             height: 522
-            source: "qrc:/image/menu/menu_main_1.png"
+            source: "image/menu/menu_main_1.png"
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -48,7 +48,7 @@ Item {
             y: 527
             width: 135
             height: 522
-            source: "qrc:/image/menu/menu_main_2.png"
+            source: "image/menu/menu_main_2.png"
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -63,7 +63,7 @@ Item {
             y: 527
             width: 135
             height: 522
-            source: "qrc:/image/menu/menu_main_3.png"
+            source: "image/menu/menu_main_3.png"
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -77,7 +77,7 @@ Item {
             y: 527
             width: 135
             height: 522
-            source: "qrc:/image/menu/menu_main_4.png"
+            source: "image/menu/menu_main_4.png"
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
@@ -101,7 +101,7 @@ Item {
         y: 435
         width: 828
         height: 288
-        source: "qrc:/image/juedoukaishi.png"
+        source: "image/juedoukaishi.png"
         visible: false
     }
 
