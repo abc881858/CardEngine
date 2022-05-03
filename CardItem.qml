@@ -30,6 +30,10 @@ Item {
         id: card_openMusic
 //        source: "voice/card_open.wav"
     }
+    Audio {
+        id: attackMusic
+//        source: "voice/attack.wav"
+    }
 
     property int isdn
     property int index
@@ -104,8 +108,6 @@ Item {
                 if(Data.battleFromIndex !== -1) {
                     Data.battleToIndex = card_item.index;
                     Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
-                    Data.blueSword.visible = true;
-                    Data.blueSwordAnimationObject.start();
                 }
             }
         }
@@ -239,9 +241,41 @@ Item {
 
     Image {
         id: sword
-        anchors.fill: card_item
+        x: 0
+        y: 0
         source: "image/sword.png"
         visible: false
+        property int endX: 235
+        property int endY: -486
+    }
+
+    SequentialAnimation {
+        id: swordAnimation
+        ScriptAction { script: { sword.visible = true; } }
+        NumberAnimation { target: sword; properties: "rotation"; from: 0; to: 26; duration: 200 }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { attackMusic.play() } }
+        ParallelAnimation {
+            NumberAnimation { target: sword; properties: "x"; from: 0; to: sword.endX; duration: 200 }
+            NumberAnimation { target: sword; properties: "y"; from: 0; to: sword.endY; duration: 200 }
+        }
+        ScriptAction {
+            script: {
+                sword.visible = false;
+                sword.rotation = 0;
+                sword.x = card_item.x;
+                sword.y = card_item.y;
+            }
+        }
+        PauseAnimation { duration: 1000 }
+        ScriptAction {
+            script: {
+                var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
+                Data.battleFromIndex = -1;
+                Data.battleToIndex = -1;
+                Data.boardObject.redLP -= Number(Data.boardCards[isdnFrom]["atk"]);
+            }
+        }
     }
 
     Image {
@@ -397,7 +431,6 @@ Item {
             script: {
                 Data.redFrontCards[0].state = "redVerticalFaceupFront"
                 Data.redFrontCards[0].swordVisible = false
-                Data.redSwordAnimationObject.start()
             }
         }
     }
@@ -458,9 +491,7 @@ Item {
             card_item.highlight = false
             Data.battleFromIndex = card_item.index;
             if(Data.getRedFrontMonsterNumber() === 0) {
-                Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
-                Data.blueSword.visible = true;
-                Data.blueSwordAnimationObject.start();
+                swordAnimation.start();
             }
         }
     }

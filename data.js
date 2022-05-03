@@ -14,9 +14,6 @@ var array = '{\
 var boardCards;
 //var boardSocket;
 
-var blueLP;
-var redLP;
-
 var turnNumber = 0
 
 var blueDeck = [1,2,3,4,5,6,7,8]
@@ -27,8 +24,6 @@ var boardObject;
 var boardDialog;
 var infoImageObject;
 var infoTextObject;
-var blueSwordAnimationObject;
-var redSwordAnimationObject;
 
 var blueHandCards = []
 var blueFrontCards = new Array(5)
@@ -44,9 +39,6 @@ var redDeckCards = []
 
 var battleFromIndex = -1;
 var battleToIndex = -1;
-
-var blueSword;
-var redSword;
 
 var oldSelectCard;
 

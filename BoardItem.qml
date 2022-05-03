@@ -16,7 +16,12 @@ Image {
     property int prevBlueLP: 8000
     property int blueLP: 8000
     onBlueLPChanged: {
-        //
+        damageMusic.play();
+        blueDamageTimer.damageMinus = blueLP < prevBlueLP;
+        blueDamageTimer.damageValue = (blueLP > prevBlueLP) ? (blueLP - prevBlueLP) : (prevBlueLP - blueLP);
+        blueDamageTimer.lpValue = prevBlueLP;
+        blueDamageTimer.start();
+        prevBlueLP = blueLP;
     }
 
     property int prevRedLP: 8000
@@ -37,12 +42,6 @@ Image {
 //        Data.boardSocket = socket;
         Data.infoImageObject = infoImage;
         Data.infoTextObject = infoText;
-        Data.blueSword = blueSword;
-        Data.redSword = redSword;
-        Data.blueSwordAnimationObject = blueSwordAnimation;
-        Data.redSwordAnimationObject = redSwordAnimation;
-        Data.blueLP = board.blueLP;
-        Data.redLP = board.redLP;
     }
 
 //    WebSocket {
@@ -69,11 +68,6 @@ Image {
     Audio {
         id: turn_changeMusic
 //        source: "voice/turn_change.wav"
-    }
-
-    Audio {
-        id: attackMusic
-//        source: "voice/attack.wav"
     }
 
     Audio {
@@ -229,6 +223,60 @@ Image {
         id: damage_red_ge
         x: 945
         y: 200
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_minus
+        x: 794
+        y: 800
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_wan
+        x: 829
+        y: 800
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_qian
+        x: 858
+        y: 800
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_bai
+        x: 887
+        y: 800
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_shi
+        x: 916
+        y: 800
+        width: 29
+        height: 72
+        source: "image/LP/damageNA.png"
+    }
+
+    Image {
+        id: damage_blue_ge
+        x: 945
+        y: 800
         width: 29
         height: 72
         source: "image/LP/damageNA.png"
@@ -450,153 +498,6 @@ Image {
 //        frameDuration: 500
 //    }
 
-    Image {
-        id: blueSword
-        x: 630
-        y: 571
-        z: 9
-        width: 90
-        height: 130
-        source: "image/sword.png"
-        fillMode: Image.PreserveAspectFit
-        visible: false
-    }
-
-    Image {
-        id: redSword
-        x: 1192
-        y: 383
-        z: 9
-        width: 90
-        height: 130
-        source: "image/sword.png"
-        fillMode: Image.PreserveAspectFit
-        visible: false
-        rotation: 180
-    }
-
-    SequentialAnimation {
-        id: redSwordAnimation
-        PauseAnimation { duration: 300 }
-        ScriptAction { script: { redSword.visible = true } }
-        PauseAnimation { duration: 200 }
-        NumberAnimation { target: redSword; properties: "rotation"; from: 180; to: 252; duration: 200 }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { attackMusic.play() } }
-        ParallelAnimation {
-            NumberAnimation { target: redSword; properties: "x"; from: 1192; to: 630; duration: 200 }
-            NumberAnimation { target: redSword; properties: "y"; from: 383; to: 571; duration: 200 }
-        }
-        ScriptAction {
-            script: {
-                redSword.visible = false;
-                redSword.rotation = 180;
-                redSword.x = 1192;
-                redSword.y = 383;
-            }
-        }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { Data.blueFrontCards[0].effectActive(); } }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { Data.redFrontCards[0].effectLabel(); } } //攻防降低500
-        PauseAnimation { duration: 1000 }
-        ScriptAction {
-            script: {
-                Data.redLP -= 1100;
-                damageMusic.play();
-                damage_red_minus.visible = true;
-                damage_red_qian.source = "image/LP/damage1.png";
-                damage_red_bai.source = "image/LP/damage1.png";
-                damage_red_qian.visible = true;
-                damage_red_bai.visible = true;
-                damage_red_shi.visible = true;
-                damage_red_ge.visible = true;
-                lp_red_qian.source = "image/LP/LP5.png"
-                lp_red_bai.source = "image/LP/LP0.png"
-            }
-        }
-        PauseAnimation { duration: 1500 }
-        ScriptAction {
-            script: {
-                damage_red_minus.visible = false;
-                damage_red_qian.visible = false;
-                damage_red_bai.visible = false;
-                damage_red_shi.visible = false;
-                damage_red_ge.visible = false;
-
-                Data.redFrontCards[0].state = "redGrave";
-                Data.redGraveCards.push(Data.redFrontCards[0]);
-                delete Data.redFrontCards[0];
-            }
-        }
-
-        PauseAnimation { duration: 500 }
-        ScriptAction {
-            script: {
-                Data.redFrontCards[1].swordVisible = false;
-                redSword.x = 1050;
-                redSword.y = 383;
-                redSword.visible = true;
-            }
-        }
-        PauseAnimation { duration: 200 }
-        NumberAnimation { target: redSword; properties: "rotation"; from: 180; to: 246; duration: 200 }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { attackMusic.play() } }
-        ParallelAnimation {
-            NumberAnimation { target: redSword; properties: "x"; from: 1050; to: 630; duration: 200 }
-            NumberAnimation { target: redSword; properties: "y"; from: 383; to: 571; duration: 200 }
-        }
-        ScriptAction {
-            script: {
-                redSword.visible = false;
-                redSword.rotation = 180;
-                redSword.x = 1192;
-                redSword.y = 383;
-            }
-        }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { Data.blueFrontCards[0].effectActive(); } }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { Data.redFrontCards[1].effectLabel(); } }
-        PauseAnimation { duration: 1000 }
-        ScriptAction {
-            script: {
-                Data.redLP -= 1900;
-                damageMusic.play();
-                damage_red_minus.visible = true;
-                damage_red_qian.source = "image/LP/damage1.png";
-                damage_red_bai.source = "image/LP/damage9.png";
-                damage_red_qian.visible = true;
-                damage_red_bai.visible = true;
-                damage_red_shi.visible = true;
-                damage_red_ge.visible = true;
-                lp_red_qian.source = "image/LP/LP3.png"
-                lp_red_bai.source = "image/LP/LP1.png"
-            }
-        }
-        PauseAnimation { duration: 1500 }
-        ScriptAction {
-            script: {
-                damage_red_minus.visible = false;
-                damage_red_qian.visible = false;
-                damage_red_bai.visible = false;
-                damage_red_shi.visible = false;
-                damage_red_ge.visible = false;
-
-                Data.redFrontCards[1].state = "redGrave";
-                Data.redGraveCards.push(Data.redFrontCards[1]);
-                delete Data.redFrontCards[1];
-            }
-        }
-        PauseAnimation { duration: 1500 }
-        ScriptAction {
-            script: {
-                state = "redEndPhase"
-            }
-        }
-    }
-
     Timer {
         id: redDamageTimer
         property bool damageMinus: false
@@ -660,74 +561,67 @@ Image {
         }
     }
 
-    SequentialAnimation {
-        id: blueSwordAnimation
-        NumberAnimation { target: blueSword; properties: "rotation"; from: 0; to: 26; duration: 200 }
-        PauseAnimation { duration: 1000 }
-        ScriptAction { script: { attackMusic.play() } }
-        ParallelAnimation {
-            NumberAnimation { target: blueSword; properties: "x"; from: 630; to: 865; duration: 200 }
-            NumberAnimation { target: blueSword; properties: "y"; from: 571; to: 85; duration: 200 }
-        }
-        ScriptAction {
-            script: {
-                blueSword.visible = false;
-                blueSword.rotation = 0;
-                blueSword.x = 630;
-                blueSword.y = 571;
-            }
-        }
-        PauseAnimation { duration: 1000 }
-//        ScriptAction {
-//            script: {
-//                if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFacedownFront") {
-//                    Data.redFrontCards[Data.battleToIndex].state = "redHorizontalFaceupFront";
-//                }
-//            }
-//        }
-//        PauseAnimation {
-//            duration: 1000
-//        }
-//        ScriptAction {
-//            script: {
-//                var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
-//                var isdnTo = Data.redFrontCards[Data.battleToIndex].isdn;
-//                if(Data.redFrontCards[Data.battleToIndex].state === "redVerticalFaceupFront") {
-//                    if(Number(Data.boardCards[isdnFrom]["atk"]) >= Number(Data.boardCards[isdnTo]["atk"])) {
-//                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
-//                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
-//                        delete Data.redFrontCards[Data.battleToIndex];
-//                        Data.redLP -= Data.boardCards[isdnFrom]["atk"] - Data.boardCards[isdnTo]["atk"];
-//                        console.log("Data.redLP: " + Data.redLP);
-//                    }
-//                    if(Number(Data.boardCards[isdnFrom]["atk"]) <= Number(Data.boardCards[isdnTo]["atk"])) {
-//                        Data.blueFrontCards[Data.battleFromIndex].state = "blueGrave";
-//                        Data.blueGraveCards.push(Data.blueFrontCards[Data.battleFromIndex]);
-//                        delete Data.blueFrontCards[Data.battleFromIndex];
-//                        Data.blueLP -= Data.boardCards[isdnTo]["atk"] - Data.boardCards[isdnFrom]["atk"];
-//                        console.log("Data.blueLP: " + Data.blueLP);
-//                    }
-//                } else if(Data.redFrontCards[Data.battleToIndex].state === "redHorizontalFaceupFront") {
-//                    if(Number(Data.boardCards[isdnFrom]["atk"]) > Number(Data.boardCards[isdnTo]["def"])) {
-//                        Data.redFrontCards[Data.battleToIndex].state = "redGrave";
-//                        Data.redGraveCards.push(Data.redFrontCards[Data.battleToIndex]);
-//                        delete Data.redFrontCards[Data.battleToIndex];
-//                    } else if(Number(Data.boardCards[isdnTo]["def"]) > Number(Data.boardCards[isdnFrom]["atk"])) {
-//                        Data.blueLP -= Data.boardCards[isdnTo]["def"] - Data.boardCards[isdnFrom]["atk"];
-//                        console.log("Data.blueLP: " + Data.blueLP);
-//                    }
-//                }
-//            }
-//        }
-        ScriptAction {
-            script: {
-                var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
-                Data.battleFromIndex = -1;
-                Data.battleToIndex = -1;
-                board.redLP -= Number(Data.boardCards[isdnFrom]["atk"]);
-            }
-        }
+    Timer {
+        id: blueDamageTimer
+        property bool damageMinus: false
+        property int damageValue: 0
+        property int damageQian: damageValue/1000
+        property int damageBai: (damageValue-damageQian*1000)/100
+        property int damageShi: (damageValue-damageQian*1000-damageBai*100)/10
+        property int damageGe: damageValue%10
+        property string damagePath: "image/LP/damage%1.png"
+        property int lpValue: 8000
+        property int lpQian: lpValue/1000
+        property int lpBai: (lpValue-lpQian*1000)/100
+        property int lpShi: (lpValue-lpQian*1000-lpBai*100)/10
+        property int lpGe: lpValue%10
+        property string lpPath: "image/LP/LP%1.png"
+        interval: 200
+        running: false
+        repeat: true
+        onTriggered: {
+            if(damageValue > 0)
+            {
+                if(damageMinus)
+                {
+                    damage_blue_minus.source = damagePath.arg("A");
+                }
+                else
+                {
+                    damage_blue_minus.source = damagePath.arg("B");
+                }
 
+                damage_blue_qian.source = damagePath.arg((damageQian===0) ? "NA" : damageQian.toString());
+                damage_blue_bai.source = damagePath.arg((damageQian===0 && damageBai===0) ? "NA" : damageBai.toString());
+                damage_blue_shi.source = damagePath.arg((damageQian===0 && damageBai===0 && damageShi===0) ? "NA" : damageShi.toString());
+                damage_blue_ge.source = damagePath.arg((damageQian===0 && damageBai===0 && damageShi===0 && damageGe===0) ? "NA" : damageGe.toString());
+
+                damageValue = damageValue - 400;
+
+                if(damageValue > 0)
+                {
+                    lpValue = lpValue - 400;
+                }
+                else
+                {
+                    lpValue = lpValue - 400 - damageValue;
+                }
+
+                lp_blue_qian.source = lpPath.arg((lpQian===0) ? "NA" : lpQian.toString());
+                lp_blue_bai.source = lpPath.arg((lpQian===0 && lpBai===0) ? "NA" : lpBai.toString());
+                lp_blue_shi.source = lpPath.arg((lpQian===0 && lpBai===0 && lpShi===0) ? "NA" : lpShi.toString());
+                lp_blue_ge.source = lpPath.arg((lpQian===0 && lpBai===0 && lpShi===0 && lpGe===0) ? "NA" : lpGe.toString());
+            }
+            else
+            {
+                blueDamageTimer.stop();
+                damage_blue_minus.source = damagePath.arg("NA");
+                damage_blue_qian.source = damagePath.arg("NA");
+                damage_blue_bai.source = damagePath.arg("NA");
+                damage_blue_shi.source = damagePath.arg("NA");
+                damage_blue_ge.source = damagePath.arg("NA");
+            }
+        }
     }
 
     states: [
@@ -1728,3 +1622,9 @@ Image {
         }
     ]
 }
+
+/*##^##
+Designer {
+    D{i:0;formeditorZoom:0.66}
+}
+##^##*/
