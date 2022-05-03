@@ -1,19 +1,7 @@
 
 *.user
 
-android-build/.gradle/5.5.1/executionHistory/
-
-android-build/.gradle/5.5.1/fileChanges/
-
-android-build/.gradle/5.5.1/fileContent/
-
-android-build/.gradle/5.5.1/fileHashes/
-
-android-build/.gradle/5.5.1/
-
-android-build/.gradle/buildOutputCleanup/
-
-android-build/.gradle/vcs-1/
+*.bak
 
 android-build/
 
@@ -27,15 +15,11 @@ Makefile
 
 libCardEngine_armeabi-v7a.so
 
-.qtc_clangd/.cache/clangd/index/__stddef_max_align_t.h.460CD6AD38C9970E.idx
-
 *.idx
 
 .qtc_clangd/compile_commands.json
 
 debug/
-
-release/voice/
 
 release/
 
