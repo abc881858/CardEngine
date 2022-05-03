@@ -612,7 +612,7 @@ Image {
         property int lpShi: (lpValue-lpQian*1000-lpBai*100)/10
         property int lpGe: lpValue%10
         property string lpPath: "image/LP/LP%1.png"
-        interval: 2000
+        interval: 200
         running: false
         repeat: true
         onTriggered: {
