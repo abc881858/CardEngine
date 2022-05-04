@@ -5,36 +5,37 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Item {
+    Audio {
+        id: card_moveMusic
+        source: "voice/card_move.wav"
+    }
+    Audio {
+        id: ikenieMusic
+        source: "voice/ikenie.wav"
+    }
+    Audio {
+        id: magic_activeMusic
+        source: "voice/magic_active.wav"
+    }
+    Audio {
+        id: card_attacked_brakeMusic
+        source: "voice/card_attacked_brake.wav"
+    }
+    Audio {
+        id: card_openMusic
+        source: "voice/card_open.wav"
+    }
+    Audio {
+        id: attackMusic
+        source: "voice/attack.wav"
+    }
+
     id: card_item
     width: 90
     height: 130
     state: "none"
 
-    Audio {
-        id: card_moveMusic
-//        source: "voice/card_move.wav"
-    }
-    Audio {
-        id: ikenieMusic
-//        source: "voice/ikenie.wav"
-    }
-    Audio {
-        id: magic_activeMusic
-//        source: "voice/magic_active.wav"
-    }
-    Audio {
-        id: card_attacked_brakeMusic
-//        source: "voice/card_attacked_brake.wav"
-    }
-    Audio {
-        id: card_openMusic
-//        source: "voice/card_open.wav"
-    }
-    Audio {
-        id: attackMusic
-//        source: "voice/attack.wav"
-    }
-
+    property bool attackEveryTurn: true
     property int isdn
     property int index
     property var judgeResult: []
@@ -46,13 +47,7 @@ Item {
     function effectActive() {
         effectActiveAnimation.start();
     }
-    function effectLabel() {
-        var atkNum = Number(Data.boardCards[isdn]["atk"]) - 500;
-        var defNum = Number(Data.boardCards[isdn]["def"]) - 500;
-        if(atkNum < 0) atkNum = 0;
-        if(defNum < 0) defNum = 0;
-        label.text = atkNum.toString() + "/" + defNum.toString();
-    }
+
 
     NumberAnimation { id: highlightAnimation1; target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
     NumberAnimation { id: unhighlightAnimation1; target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
@@ -101,7 +96,10 @@ Item {
             if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
                 //
             } else if(Data.boardObject.state === "blueBattlePhase") {
-                attackButton.visible = true
+                if(card_item.attackEveryTurn)
+                {
+                    attackButton.visible = true
+                }
             }
         } else if(card_item.state === "redVerticalFaceupFront" || card_item.state === "redHorizontalFacedownFront") {
             if(Data.boardObject.state === "blueBattlePhase") {
@@ -243,21 +241,64 @@ Item {
         id: sword
         x: 0
         y: 0
+        rotation: 0
         source: "image/sword.png"
         visible: false
         property int endX: 235
         property int endY: -486
     }
 
+    function swordAnimationStart () {
+        swordAnimation.start();
+    }
+
     SequentialAnimation {
         id: swordAnimation
-        ScriptAction { script: { sword.visible = true; } }
-        NumberAnimation { target: sword; properties: "rotation"; from: 0; to: 26; duration: 200 }
+        ScriptAction {
+            script:
+            {
+                sword.visible = true;
+                if(Data.boardObject.state === "blueBattleAnimation")
+                {
+                    sword.endX = 235;
+                    sword.endY = -486;
+                    sword.rotation = 0;
+                }
+                else if(Data.boardObject.state === "redBattleAnimation")
+                {
+                    sword.endX = -520;
+                    sword.endY = 509;
+                    sword.rotation = 180;
+                }
+            }
+        }
+        NumberAnimation {
+            target: sword;
+            properties: "rotation";
+            from: (Data.boardObject.state === "blueBattleAnimation") ? 0 : 180;
+            to: from + 26;
+            duration: 200
+        }
         PauseAnimation { duration: 1000 }
         ScriptAction { script: { attackMusic.play() } }
-        ParallelAnimation {
-            NumberAnimation { target: sword; properties: "x"; from: 0; to: sword.endX; duration: 200 }
-            NumberAnimation { target: sword; properties: "y"; from: 0; to: sword.endY; duration: 200 }
+        ParallelAnimation
+        {
+            NumberAnimation
+            {
+                target: sword;
+                properties: "x";
+                from: 0
+                to: (Data.boardObject.state === "blueBattleAnimation") ? sword.endX : -500;
+                duration: 200
+            }
+            NumberAnimation
+            {
+                target: sword;
+                properties: "y";
+                from: 0
+                to: (Data.boardObject.state === "blueBattleAnimation") ? sword.endY : 509;
+                duration: 200
+            }
         }
         ScriptAction {
             script: {
@@ -265,15 +306,16 @@ Item {
                 sword.rotation = 0;
                 sword.x = card_item.x;
                 sword.y = card_item.y;
-            }
-        }
-        PauseAnimation { duration: 1000 }
-        ScriptAction {
-            script: {
-                var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
-                Data.battleFromIndex = -1;
-                Data.battleToIndex = -1;
-                Data.boardObject.redLP -= Number(Data.boardCards[isdnFrom]["atk"]);
+
+                if(Data.boardObject.state === "blueBattleAnimation")
+                {
+                    card_item.attackEveryTurn = false;
+                    var isdnFrom = Data.blueFrontCards[Data.battleFromIndex].isdn;
+                    Data.battleFromIndex = -1;
+                    Data.battleToIndex = -1;
+                    Data.boardObject.redLP -= Number(Data.boardCards[isdnFrom]["atk"]);
+                    Data.boardObject.state = "blueBattlePhase";
+                }
             }
         }
     }
@@ -300,6 +342,8 @@ Item {
 
     TextInput {
         id: label
+        property string atkLabel: Data.boardCards[isdn]["atk"]
+        property string defLabel: Data.boardCards[isdn]["def"]
         anchors.horizontalCenter: card_image.horizontalCenter
         anchors.topMargin: 5
         width: 117
@@ -311,7 +355,7 @@ Item {
         verticalAlignment: Text.AlignVCenter
         visible: false
         readOnly: true
-        text: Data.boardCards[isdn]["atk"] + "/" + Data.boardCards[isdn]["def"];
+        text: atkLabel + "/" + defLabel;
     }
 
     Button {
@@ -421,18 +465,64 @@ Item {
         ScriptAction { script: { effect3.visible = false } }
     }
 
+    function effectLabel(atk, def) {
+        var atkNum = Number(Data.boardCards[isdn]["atk"]) + atk;
+        var defNum = Number(Data.boardCards[isdn]["def"]) + def;
+        if(atkNum < 0) atkNum = 0;
+        if(defNum < 0) defNum = 0;
+        label.text = atkNum.toString() + "/" + defNum.toString();
+    }
+
+    SequentialAnimation {
+        id: effectLabelAnimation
+        running: false
+        ScriptAction {
+            script: {
+                Data.redFrontCards[0].effectLabel(-500, -500);
+                Data.redFrontCards[1].effectLabel(-500, -500);
+                Data.blueFrontCards[0].effectLabel(0, 1500);
+            }
+        }
+        //to do...
+    }
+
     SequentialAnimation {
         id: effect3Animation
         running: false
         ScriptAction { script: { effectActiveAnimation.start() } }
         PauseAnimation { duration: 1000 }
         //先翻转再攻击我
+        ScriptAction { script: { Data.blueFrontCards[0].state = "blueHorizontalFaceupFront"; } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { Data.redFrontCards[0].state = "redVerticalFaceupFront"; } }
+        PauseAnimation { duration: 1000 }
+        ScriptAction { script: { effectLabelAnimation.start() } }
         ScriptAction {
             script: {
-                Data.redFrontCards[0].state = "redVerticalFaceupFront"
-                Data.redFrontCards[0].swordVisible = false
+                Data.redFrontCards[0].swordAnimationStart();
             }
         }
+        PauseAnimation { duration: 2000 }
+        ScriptAction { script: {
+                var atkNum = Number(Data.boardCards[Data.redFrontCards[0].isdn]["atk"]) - 500;
+                var defNum = Number(Data.boardCards[Data.blueFrontCards[0].isdn]["def"]) + 1500;
+                Data.boardObject.redLP -= (defNum - atkNum);
+            }
+        }
+        PauseAnimation { duration: 2000 }
+        ScriptAction {
+            script: {
+                Data.redFrontCards[1].swordAnimationStart();
+            }
+        }
+        PauseAnimation { duration: 2000 }
+        ScriptAction { script: {
+                var atkNum = Number(Data.boardCards[Data.redFrontCards[1].isdn]["atk"]) - 500;
+                var defNum = Number(Data.boardCards[Data.blueFrontCards[0].isdn]["def"]) + 1500;
+                Data.boardObject.redLP -= (defNum - atkNum);
+            }
+        }
+        PauseAnimation { duration: 2000 }
     }
 
     Button {
@@ -491,6 +581,7 @@ Item {
             card_item.highlight = false
             Data.battleFromIndex = card_item.index;
             if(Data.getRedFrontMonsterNumber() === 0) {
+                Data.boardObject.state = "blueBattleAnimation";
                 swordAnimation.start();
             }
         }
@@ -677,6 +768,16 @@ Item {
             }
         },
         Transition {
+            from: "blueVerticalFaceupFront"
+            to: "blueHorizontalFaceupFront"
+            SequentialAnimation {
+                ScriptAction { script: { card_openMusic.play(); } }
+                ParallelAnimation {
+                    NumberAnimation { target: rotationStand; to: 90; property: "angle"; duration: 270 }
+                }
+            }
+        },
+        Transition {
             to: "redDeckArea"
             ScriptAction {
                 script: {
@@ -767,7 +868,7 @@ Item {
             to: "redHorizontalFaceupFront"
             SequentialAnimation {
                 ScriptAction { script: { card_openMusic.play(); } }
-                NumberAnimation { target: rotationFace; from: -180; to: 0; property: "angle"; duration: 270 }
+                NumberAnimation { target: rotationFace; to: 0; property: "angle"; duration: 270 }
                 ScriptAction {
                     script: {
                         label.anchors.bottom = card_image.top
@@ -782,8 +883,8 @@ Item {
             SequentialAnimation {
                 ScriptAction { script: { card_openMusic.play(); } }
                 ParallelAnimation {
-                    NumberAnimation { target: rotationFace; from: 180; to: 0; property: "angle"; duration: 270 }
-                    NumberAnimation { target: rotationStand; from: -90; to: 0; property: "angle"; duration: 270 }
+                    NumberAnimation { target: rotationFace; to: 0; property: "angle"; duration: 270 }
+                    NumberAnimation { target: rotationStand; to: 180; property: "angle"; duration: 270 }
                 }
                 ScriptAction {
                     script: {

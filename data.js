@@ -247,14 +247,3 @@ function redHorizontalFacedownFront(index) {
     frontImage.z = 2;
     frontImage.state = "redHorizontalFacedownFront";
 }
-
-function showRedSword() {
-    for(var index = 0; index<5; index++) {
-        if(redFrontCards[index] !== undefined) {
-            if(redFrontCards[index].state === "redVerticalFaceupFront") {
-                redFrontCards[index].swordRotation = 180;
-                redFrontCards[index].swordVisible = true;
-            }
-        }
-    }
-}

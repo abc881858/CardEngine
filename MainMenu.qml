@@ -5,21 +5,21 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Item {
+    Audio {
+        id: startMusic
+        source: "voice/start.wav"
+    }
+
+    Audio {
+        id: decideMusic
+        source: "voice/decide.wav"
+    }
+
     id: main_menu
     anchors.left: parent.left
     anchors.top: parent.top
     width: 1440
     height: 1080
-
-    Audio {
-        id: startMusic
-//        source: "voice/start.wav"
-    }
-
-    Audio {
-        id: decideMusic
-//        source: "voice/decide.wav"
-    }
 
     Image {
         id: menu_0
