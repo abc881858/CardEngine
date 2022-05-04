@@ -5,6 +5,27 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Image {
+    Audio {
+        id: backmusicMusic
+        loops: Audio.Infinite
+        source: "voice/backmusic.mp3"
+    }
+
+    Audio {
+        id: battle_turnMusic
+        source: "voice/battle_turn.wav"
+    }
+
+    Audio {
+        id: turn_changeMusic
+        source: "voice/turn_change.wav"
+    }
+
+    Audio {
+        id: damageMusic
+        source: "voice/damage.wav"
+    }
+
     id: board
     anchors.left: parent.left
     anchors.top: parent.top
@@ -53,27 +74,6 @@ Image {
 //            Data.handleMessage(message.split("#")[0], message.split("#")[1]);
 //        }
 //    }
-
-    Audio {
-        id: backmusicMusic
-        loops: Audio.Infinite
-//        source: "voice/backmusic.mp3"
-    }
-
-    Audio {
-        id: battle_turnMusic
-//        source: "voice/battle_turn.wav"
-    }
-
-    Audio {
-        id: turn_changeMusic
-//        source: "voice/turn_change.wav"
-    }
-
-    Audio {
-        id: damageMusic
-//        source: "voice/damage.wav"
-    }
 
     MouseArea {
         anchors.fill: board
@@ -641,6 +641,9 @@ Image {
             name: "blueBattlePhase"
         },
         State {
+            name: "blueBattleAnimation"
+        },
+        State {
             name: "blueMain2Phase"
         },
         State {
@@ -671,6 +674,18 @@ Image {
             if(Data.blueFrontCards[index] !== undefined) {
                 if(Data.blueFrontCards[index].state === "blueVerticalFaceupFront") {
                     Data.blueFrontCards[index].swordVisible = true;
+                    Data.blueFrontCards[index].attackEveryTurn = true;
+                }
+            }
+        }
+    }
+
+    function showRedSword() {
+        for(var index = 0; index<5; index++) {
+            if(Data.redFrontCards[index] !== undefined) {
+                if(Data.redFrontCards[index].state === "redVerticalFaceupFront") {
+                    Data.redFrontCards[index].swordRotation = 180;
+                    Data.redFrontCards[index].swordVisible = true;
                 }
             }
         }
@@ -992,6 +1007,13 @@ Image {
         }
         SequentialAnimation {
             PauseAnimation { duration: 1500 }
+            ScriptAction {
+                script: {
+                    showRedSword();
+                    battle_turnMusic.play();
+                }
+            }
+            PauseAnimation { duration: 1000 }
             ScriptAction {
                 script: {
                     if(Data.findBlueFrontMatchActiveCondition()) {
@@ -1379,8 +1401,6 @@ Image {
                     image_M1.y = -135;
                     ani_red_M1.stop();
                     ani_red_BP.start();
-                    battle_turnMusic.play();
-                    Data.showRedSword();
                 }
             }
         },
