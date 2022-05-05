@@ -28,3 +28,5 @@ Makefile.Debug
 Makefile.Release
 
 qml_qmlcache.qrc
+
+image/dialog/png.bat

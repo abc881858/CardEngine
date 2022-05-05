@@ -42,11 +42,11 @@ var battleToIndex = -1;
 
 var oldSelectCard;
 
-var blueTributeSummon = false;
-var blueChainCard = false
 var blueSummonEnable = true;
+var blueSpecialSummonEnable = true;
 
 var tributeNumber = 0;
+var specifyNumber = 0;
 var tributeCard;
 
 function sendInfoImage(isdn) {
@@ -120,6 +120,7 @@ function findBlueFrontIndex() {
     return -1;
 }
 
+//判断我方场上是否有怪兽
 function getBlueFrontMonsterNumber() {
     var num = 0;
     if(blueFrontCards[0] !== undefined) ++num;
@@ -130,6 +131,7 @@ function getBlueFrontMonsterNumber() {
     return num;
 }
 
+//判断对方场上是否有怪兽
 function getRedFrontMonsterNumber() {
     var num = 0;
     if(redFrontCards[0] !== undefined) ++num;
@@ -167,17 +169,21 @@ function findRedBackIndex() {
     return -1;
 }
 
-function blueFrontMatchActiveCondition(index) {
-    if(blueFrontCards[index] !== undefined) { if(blueFrontCards[index].isdn === 6) { return true } }
+function canActive(isdn) {
+    if(isdn === 6) {
+        return true;
+    } else if(isdn === 7) {
+        return true;
+    }
     return false;
 }
 
-function findBlueFrontMatchActiveCondition() {
-    if(blueFrontCards[0] !== undefined) { if(blueFrontMatchActiveCondition(0)) { return true; } }
-    if(blueFrontCards[1] !== undefined) { if(blueFrontMatchActiveCondition(1)) { return true; } }
-    if(blueFrontCards[2] !== undefined) { if(blueFrontMatchActiveCondition(2)) { return true; } }
-    if(blueFrontCards[3] !== undefined) { if(blueFrontMatchActiveCondition(3)) { return true; } }
-    if(blueFrontCards[4] !== undefined) { if(blueFrontMatchActiveCondition(4)) { return true; } }
+function findCanActive() {
+    if(blueFrontCards[0] !== undefined) { if(canActive(0)) { return true; } }
+    if(blueFrontCards[1] !== undefined) { if(canActive(1)) { return true; } }
+    if(blueFrontCards[2] !== undefined) { if(canActive(2)) { return true; } }
+    if(blueFrontCards[3] !== undefined) { if(canActive(3)) { return true; } }
+    if(blueFrontCards[4] !== undefined) { if(canActive(4)) { return true; } }
     return false;
 }
 
@@ -195,6 +201,15 @@ function canTurnDef(obj) {
 
 function canAttack(obj) {
     return true;
+}
+
+function canSpecialSummon(isdn) {
+    if(isdn === 7) {
+        if(getBlueFrontMonsterNumber()===0 && getRedFrontMonsterNumber()!==0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 function blue_draw_card() {

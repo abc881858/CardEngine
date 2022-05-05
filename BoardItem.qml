@@ -5,6 +5,7 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Image {
+    id: board
     Audio {
         id: backmusicMusic
         loops: Audio.Infinite
@@ -26,13 +27,13 @@ Image {
         source: "voice/damage.wav"
     }
 
-    id: board
     anchors.left: parent.left
     anchors.top: parent.top
     width: 1440
     height: 1080
     source: "image/bg.png"
     state: "startGame"
+    property string lastState: ""
 
     property int prevBlueLP: 8000
     property int blueLP: 8000
@@ -291,17 +292,25 @@ Image {
         height: 324
         source: "image/dialog/dialog3.png"
         visible: false
+        property string sourcePath: "image/dialog/dialog%1.png"
         property int index: 3
+        onIndexChanged: {
+            source = sourcePath.arg(index)
+        }
 
         MouseArea {
             anchors.fill: parent
             onClicked: {
+                dialogImage.visible = false;
                 if(dialogImage.index === 1) {
-                    dialogImage.visible = false
-                    Data.blueChainCard = true
+                    board.state = "blueChainPhase";
                 } else if(dialogImage.index === 3) {
-                    dialogImage.visible = false
-                    Data.blueTributeSummon = true
+                    board.lastState = board.state;
+                    board.state = "blueTributePhase";
+                } else if(dialogImage.index === 5) {
+                    board.lastState = board.state;
+                    Data.specifyNumber = 1;
+                    board.state = "blueSpecifyPhase";
                 }
             }
         }
@@ -488,15 +497,177 @@ Image {
         }
     }
 
-//    AnimatedSprite {
-//        id: coinAnimation
-//        running: false
-//        source: "loading.png"
-//        frameWidth: 72
-//        frameHeight: 72
-//        frameCount: 14
-//        frameDuration: 500
-//    }
+    Rectangle {
+        id: coin1Rectangle
+        x: 900
+        y: 500
+        z: 10
+        width: 72
+        height: 72
+        clip: true
+        color: "transparent"
+        visible: false
+        Image {
+            id: coin1Image
+            x: 0
+            y: 0
+            width: 1008
+            height: 72
+            source: "image/coin.png"
+        }
+        Timer {
+            id: coin1Timer
+            interval: 40
+            running: false
+            repeat: true
+            property int repeatValue: 3
+            property int endValue: -936
+            onTriggered: {
+                if(repeatValue === 0) {
+                    if(coin1Image.x === endValue) {
+                        repeatValue = 3;
+                        endValue = -936;
+                        coin1Timer.running = false;
+                    } else {
+                        coin1Image.x -= 72;
+                    }
+                } else if(coin1Image.x === -936) {
+                    repeatValue -= 1;
+                    coin1Image.x = 0;
+                } else {
+                    coin1Image.x -= 72;
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: coin2Rectangle
+        x: 1000
+        y: 500
+        z: 10
+        width: 72
+        height: 72
+        clip: true
+        color: "transparent"
+        visible: false
+        Image {
+            id: coin2Image
+            x: 0
+            y: 0
+            width: 1008
+            height: 72
+            source: "image/coin.png"
+        }
+        Timer {
+            id: coin2Timer
+            interval: 40
+            running: false
+            repeat: true
+            property int repeatValue: 3
+            property int endValue: -936
+            onTriggered: {
+                if(repeatValue === 0) {
+                    if(coin2Image.x === endValue) {
+                        repeatValue = 3;
+                        endValue = -936;
+                        coin2Timer.running = false;
+                    } else {
+                        coin2Image.x -= 72;
+                    }
+                } else if(coin2Image.x === -936) {
+                    repeatValue -= 1;
+                    coin2Image.x = 0;
+                } else {
+                    coin2Image.x -= 72;
+                }
+            }
+        }
+    }
+
+    Rectangle {
+        id: coin3Rectangle
+        x: 1100
+        y: 500
+        z: 10
+        width: 72
+        height: 72
+        clip: true
+        color: "transparent"
+        visible: false
+        Image {
+            id: coin3Image
+            x: 0
+            y: 0
+            width: 1008
+            height: 72
+            source: "image/coin.png"
+        }
+        Timer {
+            id: coin3Timer
+            interval: 40
+            running: false
+            repeat: true
+            property int repeatValue: 3
+            property int endValue: -936
+            onTriggered: {
+                if(repeatValue === 0) {
+                    if(coin3Image.x === endValue) {
+                        repeatValue = 3;
+                        endValue = -936;
+                        coin3Timer.running = false;
+                    } else {
+                        coin3Image.x -= 72;
+                    }
+                } else if(coin3Image.x === -936) {
+                    repeatValue -= 1;
+                    coin3Image.x = 0;
+                } else {
+                    coin3Image.x -= 72;
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: coinTimer
+        interval: 4000
+        running: false
+        onTriggered: {
+            coin1Rectangle.visible = false;
+            coin2Rectangle.visible = false;
+            coin3Rectangle.visible = false;
+            coinTimer.stop();
+        }
+    }
+
+    function coinThree() {
+        var ret1 = false;
+        var ret2 = false;
+        var ret3 = false;
+        if(0) {
+            ret1 = true;
+            coin1Timer.endValue = -432;
+        }
+        if(0) {
+            ret2 = true;
+            coin2Timer.endValue = -432;
+        }
+        if(0) {
+            ret3 = true;
+            coin3Timer.endValue = -432;
+        }
+        coin1Rectangle.visible = true;
+        coin1Timer.running = true;
+        coin2Rectangle.visible = true;
+        coin2Timer.running = true;
+        coin3Rectangle.visible = true;
+        coin3Timer.running = true;
+
+        coinTimer.running = true;
+
+        return [ret1, ret2, ret3];
+    }
 
     Timer {
         id: redDamageTimer
@@ -644,6 +815,15 @@ Image {
             name: "blueBattleAnimation"
         },
         State {
+            name: "blueChainPhase"
+        },
+        State {
+            name: "blueTributePhase"
+        },
+        State {
+            name: "blueSpecifyPhase"
+        },
+        State {
             name: "blueMain2Phase"
         },
         State {
@@ -725,7 +905,7 @@ Image {
             ScriptAction {
                 script: {
                     Data.blueSummonEnable = true;
-                    state = "blueStandbyPhase";
+                    board.state = "blueStandbyPhase";
                 }
             }
         }
@@ -752,7 +932,7 @@ Image {
             PauseAnimation { duration: 800 }
             ScriptAction {
                 script: {
-                    state = "blueMain1Phase";
+                    board.state = "blueMain1Phase";
                 }
             }
         }
@@ -875,7 +1055,7 @@ Image {
             PauseAnimation { duration: 800 }
             ScriptAction {
                 script: {
-                    state = "redDrawPhase";
+                    board.state = "redDrawPhase";
                 }
             }
         }
@@ -904,7 +1084,7 @@ Image {
             PauseAnimation { duration: 300 }
             ScriptAction {
                 script: {
-                    state = "redStandbyPhase";
+                    board.state = "redStandbyPhase";
                 }
             }
         }
@@ -931,7 +1111,7 @@ Image {
             PauseAnimation { duration: 800 }
             ScriptAction {
                 script: {
-                    state = "redMain1Phase";
+                    board.state = "redMain1Phase";
                 }
             }
         }
@@ -970,7 +1150,7 @@ Image {
             PauseAnimation { duration: 2000 }
             ScriptAction {
                 script: {
-                     state = "redBattlePhase"
+                     board.state = "redBattlePhase"
                 }
             }
         }
@@ -1016,10 +1196,11 @@ Image {
             PauseAnimation { duration: 1000 }
             ScriptAction {
                 script: {
-                    if(Data.findBlueFrontMatchActiveCondition()) {
-                        Data.boardDialog.source = "image/dialog/dialog1.png"
+                    if(Data.findCanActive()) {
                         Data.boardDialog.index = 1
                         Data.boardDialog.visible = true
+                    } else {
+                        board.state = "redEndPhase"
                     }
                 }
             }
@@ -1057,6 +1238,23 @@ Image {
         id: ani_red_EP
         running: false
         SequentialAnimation {
+            ScriptAction {
+                script: {
+                    if(Data.redFrontCards[0] !== undefined)
+                        Data.redFrontCards[0].swordVisible = false;
+                    if(Data.redFrontCards[1] !== undefined)
+                        Data.redFrontCards[1].swordVisible = false;
+                    if(Data.redFrontCards[2] !== undefined)
+                        Data.redFrontCards[2].swordVisible = false;
+                    if(Data.redFrontCards[3] !== undefined)
+                        Data.redFrontCards[3].swordVisible = false;
+                    if(Data.redFrontCards[4] !== undefined)
+                        Data.redFrontCards[4].swordVisible = false;
+                }
+            }
+            PauseAnimation { duration: 200 }
+        }
+        SequentialAnimation {
             loops: Animation.Infinite
             ScriptAction { script: { image_EP.x = 0; } }
             PauseAnimation { duration: 200 }
@@ -1074,7 +1272,7 @@ Image {
             PauseAnimation { duration: 800 }
             ScriptAction {
                 script: {
-                    state = "blueDrawPhase";
+                    board.state = "blueDrawPhase";
                 }
             }
         }

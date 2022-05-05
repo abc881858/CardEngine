@@ -5,6 +5,7 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Item {
+    id: main_menu
     Audio {
         id: startMusic
         source: "voice/start.wav"
@@ -15,7 +16,6 @@ Item {
         source: "voice/decide.wav"
     }
 
-    id: main_menu
     anchors.left: parent.left
     anchors.top: parent.top
     width: 1440

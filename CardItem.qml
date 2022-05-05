@@ -5,6 +5,7 @@ import QtQuick.Controls 2.14
 import QtMultimedia 5.14
 
 Item {
+    id: card_item
     Audio {
         id: card_moveMusic
         source: "voice/card_move.wav"
@@ -30,7 +31,6 @@ Item {
         source: "voice/attack.wav"
     }
 
-    id: card_item
     width: 90
     height: 130
     state: "none"
@@ -44,10 +44,23 @@ Item {
     property alias swordVisible: sword.visible
     property alias swordRotation: sword.rotation
 
-    function effectActive() {
-        effectActiveAnimation.start();
+    TextInput {
+        id: label
+        property string atkLabel: Data.boardCards[isdn]["atk"]
+        property string defLabel: Data.boardCards[isdn]["def"]
+        anchors.horizontalCenter: card_image.horizontalCenter
+        anchors.topMargin: 5
+        width: 117
+        height: 31
+        color: "#ffffff"
+        font.pixelSize: 24
+        font.bold: true
+        horizontalAlignment: Text.AlignHCenter
+        verticalAlignment: Text.AlignVCenter
+        visible: false
+        readOnly: true
+        text: atkLabel + "/" + defLabel;
     }
-
 
     NumberAnimation { id: highlightAnimation1; target: card_item; properties: "y"; from: 952; to: 889; duration: 200 }
     NumberAnimation { id: unhighlightAnimation1; target: card_item; properties: "y"; from: 889; to: 952; duration: 200 }
@@ -58,11 +71,17 @@ Item {
         if(card_item.state === "blueHandArea") {
             if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
                 if(Data.findBlueFrontIndex() !== -1) {
+                    if(Data.blueSpecialSummonEnable) {
+                        if(Data.canSpecialSummon(card_item.isdn)) {
+                            specialButton.visible = true;
+                        }
+                    }
                     if(Data.blueSummonEnable) {
                         var card_level = Number(Data.boardCards[card_item.isdn]["level"]);
                         if(card_level < 5) {
                             summonButton.visible = true;
                             setButton.visible = true;
+                            Data.tributeNumber = 0
                         } else {
                             var blueFrontMonsterNumber = Data.getBlueFrontMonsterNumber();
                             if(card_level < 7 && blueFrontMonsterNumber > 0){
@@ -94,14 +113,51 @@ Item {
     function checkFront() {
         if(card_item.state === "blueVerticalFaceupFront") {
             if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
-                //
+                if(Data.canActive(card_item.isdn)) {
+                    activeButton.visible = true;
+                }
             } else if(Data.boardObject.state === "blueBattlePhase") {
-                if(card_item.attackEveryTurn)
-                {
-                    attackButton.visible = true
+                if(card_item.attackEveryTurn) {
+                    attackButton.visible = true;
+                }
+            } else if(Data.boardObject.state === "blueChainPhase") {
+                if(Data.canActive(card_item.isdn)) {
+                    activeButton.visible = true;
+                }
+            } else if(Data.boardObject.state === "blueTributePhase") {
+                tributeButton.visible = true;
+            }
+        } else if(card_item.state === "blueHorizontalFaceupFront") {
+            if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
+                if(Data.canActive(card_item.isdn)) {
+                    activeButton.visible = true;
+                }
+            } else if(Data.boardObject.state === "blueTributePhase") {
+                tributeButton.visible = true;
+            }
+        } else if(card_item.state === "blueVerticalFacedownFront") {
+            if(Data.boardObject.state === "blueTributePhase") {
+                tributeButton.visible = true;
+            }
+        } else if(card_item.state === "blueHorizontalFacedownFront") {
+            if(Data.boardObject.state === "blueTributePhase") {
+                tributeButton.visible = true;
+            }
+        } else if(card_item.state === "redVerticalFaceupFront") {
+            if(Data.boardObject.state === "blueBattlePhase") {
+                if(Data.battleFromIndex !== -1) {
+                    Data.battleToIndex = card_item.index;
+                    Data.blueFrontCards[Data.battleFromIndex].swordVisible = false;
                 }
             }
-        } else if(card_item.state === "redVerticalFaceupFront" || card_item.state === "redHorizontalFacedownFront") {
+            if(Data.boardObject.state === "blueSpecifyPhase") {
+                specifyButton.visible = true;
+            }
+        } else if(card_item.state === "redHorizontalFaceupFront") {
+            if(Data.boardObject.state === "blueSpecifyPhase") {
+                specifyButton.visible = true;
+            }
+        } else if(card_item.state === "redHorizontalFacedownFront") {
             if(Data.boardObject.state === "blueBattlePhase") {
                 if(Data.battleFromIndex !== -1) {
                     Data.battleToIndex = card_item.index;
@@ -150,21 +206,8 @@ Item {
             Data.sendInfoImage(card_item.isdn);
             Data.oldSelectCard = card_item;
 
-            if(Data.blueTributeSummon === true) {
-                if(card_item.state === "blueVerticalFaceupFront" ||
-                        card_item.state === "blueVerticalFacedownFront" ||
-                        card_item.state === "blueHorizontalFaceupFront" ||
-                        card_item.state === "blueHorizontalFacedownFront") {
-                    tributeButton.visible = true;
-                }
-            } else if(Data.blueChainCard === true) {
-                if(Data.blueFrontMatchActiveCondition(card_item.index) && card_item.state === "blueVerticalFaceupFront") {
-                    activeButton.visible = true;
-                }
-            } else {
-                checkHand();
-                checkFront();
-            }
+            checkHand();
+            checkFront();
         } else {
             highlight_image.visible = false;
 
@@ -174,6 +217,7 @@ Item {
             setButton.visible = false;
             specialButton.visible = false;
             tributeButton.visible = false;
+            specifyButton.visible = false;
             attackButton.visible = false;
             activeButton.visible = false;
 
@@ -340,24 +384,6 @@ Item {
         visible: false
     }
 
-    TextInput {
-        id: label
-        property string atkLabel: Data.boardCards[isdn]["atk"]
-        property string defLabel: Data.boardCards[isdn]["def"]
-        anchors.horizontalCenter: card_image.horizontalCenter
-        anchors.topMargin: 5
-        width: 117
-        height: 31
-        color: "#ffffff"
-        font.pixelSize: 18
-        font.bold: true
-        horizontalAlignment: Text.AlignHCenter
-        verticalAlignment: Text.AlignVCenter
-        visible: false
-        readOnly: true
-        text: atkLabel + "/" + defLabel;
-    }
-
     Button {
         id: summonButton
         y: -70
@@ -383,17 +409,14 @@ Item {
                     //Data.boardSocket.sendTextMessage("summonFront#"+old_place2+"@"+place2);
                 } else if(Data.tributeNumber === 1) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "image/dialog/dialog2.png"
                     Data.boardDialog.index = 2
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 2) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "image/dialog/dialog3.png"
                     Data.boardDialog.index = 3
                     Data.boardDialog.visible = true
                 } else if(Data.tributeNumber === 3) {
                     Data.tributeCard = card_item;
-                    Data.boardDialog.source = "image/dialog/dialog4.png"
                     Data.boardDialog.index = 4
                     Data.boardDialog.visible = true
                 }
@@ -428,6 +451,31 @@ Item {
     }
 
     Button {
+        id: specialButton
+        y: summonButton.visible && setButton.visible ? -210 : summonButton.visible ? -140 : -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 180
+        height: 60
+        text: "特殊召唤"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            card_item.highlight = false;
+            var place3 = Data.findBlueFrontIndex();
+            if(place3 !== -1) {
+                var old_place3 = card_item.index;
+                Data.blueHandCards.splice(old_place3, 1);
+                Data.blueFrontCards[place3] = card_item;
+                card_item.index = place3;
+                card_item.z = 2;
+                card_item.state = "blueVerticalFaceupFront";
+                //Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
+            }
+        }
+    }
+
+    Button {
         id: tributeButton
         y: -70
         anchors.horizontalCenter: card_image.horizontalCenter
@@ -438,8 +486,89 @@ Item {
         font.bold: true
         visible: false
         onClicked: {
-            card_item.highlight = false
+            card_item.highlight = false;
             card_item.state = "blueGrave";
+            Data.tributeNumber = Data.tributeNumber - 1;
+            if(Data.tributeNumber === 0) {
+                Data.boardObject.state = Data.boardObject.lastState;
+            }
+        }
+    }
+
+    Button {
+        id: specifyButton
+        y: -70
+        anchors.horizontalCenter: card_image.horizontalCenter
+        width: 180
+        height: 60
+        text: "指定"
+        font.pixelSize: 24
+        font.bold: true
+        visible: false
+        onClicked: {
+            card_item.highlight = false;
+            Data.specifyNumber = Data.specifyNumber - 1;
+            if(Data.specifyNumber === 0) {
+                Data.boardObject.state = Data.boardObject.lastState;
+                const [ret1, ret2, ret3] = Data.boardObject.coinThree();
+                var atkNum = Number(label.atkLabel);
+                var defNum = Number(label.defLabel);
+                atkNum -= 700;
+                defNum -= 700;
+                if(ret1 === true) {
+                    atkNum -= 700;
+                    defNum -= 700;
+                }
+                if(ret2 === true) {
+                    atkNum -= 700;
+                    defNum -= 700;
+                }
+                if(ret3 === true) {
+                    atkNum -= 700;
+                    defNum -= 700;
+                }
+                if(atkNum <= 0 || defNum <= 0) {
+                    card_item.state = "redGrave";
+                } else {
+                    labelTimer.atkNew = atkNum;
+                    labelTimer.defNew = defNum;
+                    labelTimer.start();
+                }
+            }
+        }
+    }
+
+    Timer {
+        id: labelTimer
+        property int remain: 0
+        property int atkNew: 0
+        property int defNew: 0
+        interval: 40
+        running: false
+        repeat: true
+        onTriggered: {
+            remain++;
+            if(remain > 100) {
+                var atkOld = Number(label.atkLabel);
+                var defOld = Number(label.defLabel);
+                if(atkNew < atkOld) {
+                    atkOld -= 100;
+                } else if (atkNew > atkOld) {
+                    atkOld += 100;
+                }
+                if(defNew < defOld) {
+                    defOld -= 100;
+                } else if(defNew > defOld) {
+                    defOld += 100;
+                }
+                if(atkNew === atkOld && defNew === defOld) {
+                    remain = 0;
+                    labelTimer.stop();
+                } else {
+                    label.atkLabel = atkOld.toString();
+                    label.defLabel = defOld.toString();
+                }
+            }
         }
     }
 
@@ -523,6 +652,11 @@ Item {
             }
         }
         PauseAnimation { duration: 2000 }
+        ScriptAction {
+            script: {
+                Data.boardObject.state = "redEndPhase"
+            }
+        }
     }
 
     Button {
@@ -537,32 +671,15 @@ Item {
         visible: false
         onClicked: { //点击发动按钮
             card_item.highlight = false
-            Data.blueChainCard = false
-            effect3Animation.start(); //效果3发动
-        }
-    }
-
-    Button {
-        id: specialButton
-        y: -210
-        anchors.horizontalCenter: card_image.horizontalCenter
-        width: 180
-        height: 60
-        text: "特殊召唤"
-        font.pixelSize: 24
-        font.bold: true
-        visible: false
-        onClicked: {
-            card_item.highlight = false
-            var place3 = Data.findBlueFrontIndex();
-            if(place3 !== -1) {
-                var old_place3 = card_item.index;
-                Data.blueHandCards.splice(old_place3, 1);
-                Data.blueFrontCards[place3] = card_item;
-                card_item.index = place3;
-                card_item.z = 2;
-                card_item.state = "blueVerticalFaceupFront";
-                //Data.boardSocket.sendTextMessage("specialFront#"+old_place3+"@"+place3);
+            if(isdn === 6) {
+                if(Data.boardObject.state === "blueChainPhase") {
+                    effect3Animation.start();
+                } else if(Data.boardObject.state === "blueMain1Phase" || Data.boardObject.state === "blueMain2Phase") {
+                    //请丢弃一张手牌
+                }
+            } else if(isdn === 7) {
+                Data.boardDialog.index = 5
+                Data.boardDialog.visible = true
             }
         }
     }
@@ -915,24 +1032,24 @@ Item {
                         NumberAnimation { target: rotationStand; to: 0; property: "angle"; duration: 200 }
                         NumberAnimation { target: rotationFace; to: 0; property: "angle"; duration: 200 }
                     }
+                    PauseAnimation { duration: 1600 }
                     ScriptAction {
                         script: {
                             label.visible = false
                             effect2.visible = false
                             delete Data.blueFrontCards[card_item.index];
-                            Data.tributeNumber = Data.tributeNumber - 1;
                             if(Data.tributeNumber === 0) {
-                                Data.blueTributeSummon = false;
                                 var place2 = Data.findBlueFrontIndex();
                                 var old_place2 = Data.tributeCard.index;
                                 Data.blueHandCards.splice(old_place2, 1);
                                 Data.blueFrontCards[place2] = Data.tributeCard;
                                 Data.tributeCard.index = place2;
-                                Data.tributeCard.z = 5+Data.blueGraveCards.length
+                                Data.tributeCard.z = 5+Data.blueGraveCards.length;
                                 Data.tributeCard.highlight = false;
                                 Data.blueSummonEnable = false;
                                 Data.tributeCard.state = "blueVerticalFaceupFront";
                             }
+
                         }
                     }
                 }
@@ -941,6 +1058,9 @@ Item {
         Transition {
             to: "redGrave"
             SequentialAnimation {
+                PauseAnimation {
+                    duration: 4200
+                }
                 ScriptAction { script: { card_attacked_brakeMusic.play(); } }
                 ParallelAnimation {
                     NumberAnimation { target: card_item; properties: "x"; from: x; to: 488; duration: 270 }
